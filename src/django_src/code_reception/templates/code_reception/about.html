@@ -1,0 +1,6 @@
+{% extends "code_reception/base.html"%}
+{% block content %}
+    {% for toolset in toolsets %}
+    <p>Toolset name: {{toolset.name}}, compiler command: {{toolset.cmd}}</p>
+    {% endfor %}
+{% endblock content%}

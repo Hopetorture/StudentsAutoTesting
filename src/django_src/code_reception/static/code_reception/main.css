@@ -1,0 +1,41 @@
+body {
+  padding: 10px ;
+}
+
+
+ul {
+  margin: 0;
+}
+#Title {
+    opacity: 1;
+}
+#task_tabs h3 {
+  color : #333;
+  padding : 5px 15px;
+}
+.tab-pane {
+    padding: 10px;
+}
+
+textarea {
+  margin:0px 0px;
+  padding:5px;
+  height:16px;
+  line-height:16px;
+  width:100%;
+  display:block;
+  margin:0px auto;
+}
+
+#submit_btn {
+margin:15px 0px;
+  padding:5px;
+  line-height:16px;
+  width:15%;
+  display:block;
+}
+#results{
+  line-height:16px;
+  width:25%;
+  display:block;
+}
