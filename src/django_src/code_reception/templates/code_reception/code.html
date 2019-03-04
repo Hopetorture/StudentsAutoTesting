@@ -1,8 +1,10 @@
 {% extends "code_reception/base.html"%}
 {% block content %}
+<!--<form method="POST" enctype="multipart/form-data">-->
+    {% csrf_token %}
 <div id="task_tabs" class="container">
    <div class="tabbable"> <!-- Only required for left/right tabs -->
-        <ul class="nav nav-tabs">
+       <ul class="nav nav-tabs">
             {% for task in tasks %}
                 {% if forloop.counter == 1 %}
                     <li class="active"><a href="#tab1" data-toggle="tab">Задача #1  </a></li>
@@ -10,17 +12,18 @@
                     <li><a href="#tab{{forloop.counter}}" data-toggle="tab">Задача #{{forloop.counter}}  </a></li>
                 {% endif %}
             {% endfor %}
-        </ul>
-        <div class="tab-content">
+       </ul>
+       <div class="tab-content">
             {% for task in tasks %}
-                    <div {% if forloop.counter == 1 %} class="tab-pane active" {% else %} class="tab-pane" {% endif %} id="tab{{forloop.counter}}">
-                       <div class="panel panel-default">
-                          <div class="panel-heading">
+                <div {% if forloop.counter == 1 %} class="tab-pane active" {% else %} class="tab-pane" {% endif %} id="tab{{forloop.counter}}">
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">
                             <h3 id="Title" class="panel-title">{{task.title}}</h3>
-                          </div>
-                          <div class="panel-body">
+                        </div>
+                        <div class="panel-body">
                             {{task.text}}
-                          </div>
+                        </div>
                         </div>
                             <!--<div class="panel panel-default">-->
                                 <!--<div class="panel-body">-->
@@ -28,41 +31,96 @@
                                 <!--</div>-->
                             <!--</div>-->
                         <!--<textarea id="txtarea" spellcheck="false" placeholder="Введите код программы"></textarea>-->
+
+                        <!--Dropdown-->
                         <div class="dropdown">
-                          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            C++14
-                            <span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                C++14
+                                <span class="caret"></span>
+                            </button>
+                            <ul   class="dropdown-menu" aria-labelledby="dropdownMenu1" id="toolset">
                             <li><a href="#">C++14</a></li>
                             <li><a href="#">C++98</a></li>
-                          </ul>
+                            </ul>
                             <script>
                                 $(".dropdown-menu li a").click(function(){
                                 $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
                                 $(this).parents(".dropdown").find('.btn').val($(this).data('value'));});
                             </script>
                         <label id="status">
-                            Статус: <font color="{{task.status_color}}"> {{task.solve_status}}</font>
+                            Статус: <font id="status_color" color="{{task.status_color}}"> {{task.solve_status}}</font>
                         </label>
                         </div>
-                        <div class="form-group">
-                            <label for="txtarea">Код программы</label>
-                            <textarea class="form-control" id="txtarea" rows="1"></textarea>
+
+
+
+                            <div class="form-group">
+                                <label for="txtarea">Код программы</label>
+                                <textarea name='code' class="form-control" id="txtarea" rows="1"></textarea>
+                                <script>
+                                    function expandTextarea(id) {
+                                    document.getElementById(id).addEventListener('keyup', function() {
+                                    this.style.overflow = 'hidden';
+                                    this.style.height = 0;
+                                    this.style.height = this.scrollHeight + 'px';}, false);}
+                                    expandTextarea('txtarea');
+                                </script>
+                            </div>
                             <script>
-                                function expandTextarea(id) {
-                                document.getElementById(id).addEventListener('keyup', function() {
-                                this.style.overflow = 'hidden';
-                                this.style.height = 0;
-                                this.style.height = this.scrollHeight + 'px';}, false);}
-                                expandTextarea('txtarea');
+                                function sendTask(){
+                                    var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+                                    var code_src = $('#txtarea').val();
+                                    var toolset = $('#dropdownMenu1').text().trim();
+
+                                    var task_num = $('.active')[1].id;
+                                    task_num = task_num[task_num.length - 1];
+
+                                    input_dict = {
+                                    code: code_src,
+                                    lang: toolset,
+                                    task: task_num,
+                                    csrfmiddlewaretoken: CSRFtoken
+                                    }
+
+                                    var cb = function(data){
+                                        //console.log(data['result']);
+                                        var res = data['result'];
+                                        $('#status_color').text(res['status']);
+                                        $('#status_color').attr('color', res['color']);
+                                        $('#Compile_error').text(res['compile_result']);
+                                        testcases = res['testcase_status'];
+                                        for(var i = 0; i < testcases.length; i++){
+                                            //console.log(testcases[i]);
+                                            var idx = String(i)//i.toString(10);
+                                            var next_idx =  String(i + 1);
+                                            //var next_idx = idx + 1
+                                            console.log(idx);
+                                            status = testcases[i]['status'];
+                                            class_color = "list-group-item list-group-item-danger"
+                                            if(status == "Success"){
+                                                class_color = "list-group-item list-group-item-success"
+                                            }
+                                            var txt = "Test #" + next_idx + " " + status;
+                                            console.log(txt);
+
+                                            $('#testcase' + next_idx).text(txt);
+                                            $('#testcase' + next_idx).attr('class', class_color)
+                                        }
+                                    }
+                                    $.post("test", input_dict, cb);
+                                }
                             </script>
-                        </div>
-                        <button id="submit_btn" type="button" class="btn btn-success">Отправить код</button>
+                            <button id="submit_btn"   class="btn btn-success" onclick="sendTask()">Отправить код</button><!--type="submit"-->
+                            <!--$('#submit_btn').click(function(){-->
+                                <!--alert('smthing')-->
+                            <!--} );-->
+
                         <ul class="list-group" id="results">
                             {% for result in task.tests_success %}
-                                {% if result == 'True' %} <li class="list-group-item list-group-item-success">Test #{{forloop.counter}} Success</li>
-                                {% else %} <li class="list-group-item list-group-item-danger">Test #{{forloop.counter}} Fail</li>
+                                {% if result == 'True' %}
+                                    <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-success">Test #{{forloop.counter}} Success</li>
+                                {% else %}
+                                    <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-danger">Test #{{forloop.counter}} Fail</li>
                                 {% endif %}
                             {% endfor %}
                           <!--<li class="list-group-item">Dapibus ac facilisis in</li>-->
@@ -75,10 +133,13 @@
                           <!--<li class="list-group-item list-group-item-light">This is a light list group item</li>-->
                           <!--<li class="list-group-item list-group-itqem-dark">This is a dark list group item</li>-->
                         </ul>
-                    </div>
+                        <label id="Compile_error">
+                        </label>
+                </div>
             {% endfor %}
-        </div>
-    </div>
+       </div> <!--tab content end-->
+   </div>
 </div>
+<!--</form>-->
 {% endblock content %}
 

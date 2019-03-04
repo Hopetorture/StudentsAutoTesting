@@ -27,7 +27,8 @@ int main(int argc, char** argv)
 d2 = {"QuestionID": "42",
       "Title": "str",
       "Text": "text of question",
-      "Timeout": "3", "testcases":
+      "Timeout": "3",
+      "testcases":
           [{
               "Test_id": "1",
               "Stdin_input": ["3", "3"],
@@ -51,10 +52,11 @@ def run_docker():
 
 
 def start_for_debug():
-    from src.test_engine.judge import judge
+    #from src.test_engine.judge import judge
+    from . import judge
     judge(json.dumps(d1), json.dumps(d2))
 
 
 if __name__ == '__main__':
-    #start_for_debug()
-    run_docker()
+    start_for_debug()
+    #run_docker()
