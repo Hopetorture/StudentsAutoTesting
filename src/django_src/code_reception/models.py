@@ -1,33 +1,20 @@
 import json
-from django.db import models
+
 from django.contrib.auth.models import User
+from django.db import models
+
+from users.models import Profile
+from .default_values import CPP_TEMPLATE
+
+
 # Create your models here.
 
-
-# tasks =[
-#     {
-#         'Question_id': '42',
-#         'Title': 'Sorting',
-#         'Text': 'this is a task',
-#         'Timeout': '3',
-#         'status': 'fail',
-#         'status_color': 'red',
-#         'test_success': ['True', 'True', 'False']
-#     }]
-
-#class TestSuccessField(models.CharField):
-
-#TODO !!!
-# Отделить entity task от entity Result, так как Task - один на всех, а result у каждого разный
 
 class Task(models.Model):
     Question_id = models.IntegerField(default=-1)
     title = models.CharField(max_length=100)
     text = models.TextField()
     timeout = models.FloatField(default=3.0)
-    solve_status = models.CharField(max_length=20, default='no run')
-    status_color = models.CharField(max_length=30, default='red')
-    tests_success = models.TextField(max_length=100, default=json.dumps([]))
     user_set = models.ManyToManyField(User)
 
     def __str__(self):
@@ -41,50 +28,16 @@ class Task(models.Model):
             "Timeout": self.timeout,
             "testcases": [case.as_dict() for case in self.testcase_set.all()]
         }
-    # question_json = {
-    #     "QuestionID": task.Question_id,
-    #     "Title": task.title,  # possible to cut it?
-    #     "Text": task.text,
-    #     "Timeout": task.timeout,
-    #     "testcases":
-    #         [{
-    #             "Test_id": "1",
-    #             "Stdin_input": ["3", "3"],
-    #             "Filestring json": "formatted string with test data input",
-    #             "Output_type": "string",
-    #             "Output_value": "Hello world"
-    #         },
-    #             {
-    #                 "Test_id": "2",
-    #                 "Stdin_input": [],
-    #                 "Filestring json": "tbd",
-    #                 "Output_type": "string",
-    #                 "Output_value": "Hello world"
-    #             }
-    #         ]
-    # }
 
-    # def to_json(self):
-    #     return {
-    #
-    #     }
-    #
-    # "testcases":
-    # [{
-    #     "Test_id": "1",
-    #     "Stdin_input": ["3", "3"],
-    #     "Filestring json": "formatted string with test data input",
-    #     "Output_type": "int",
-    #     "Output_value": "6"
-    # },
-    #     {
-    #         "Test_id": "2",
-    #         "Stdin_input": ["5", "7"],
-    #         "Filestring json": "tbd",
-    #         "Output_type": "int",
-    #         "Output_value": "12"
-    #     }
-    # ]
+
+class TaskResult(models.Model):
+    test = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    solve_status = models.CharField(max_length=20, default='no run')
+    status_color = models.CharField(max_length=30, default='red')
+    tests_success = models.TextField(max_length=100, default=json.dumps([]))
+    submitted_code = models.TextField(max_length=1000, default=CPP_TEMPLATE)
 
 
 class TestCase(models.Model):
@@ -105,6 +58,8 @@ class TestCase(models.Model):
             "Output_value": str(self.correct_answer)
         }
 
-# class Student(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     tasks = models.ManyToManyField(Task)
+
+class Course(models.Model):
+    tasks_pool = models.ManyToManyField(Task)
+    users = models.ManyToManyField(User)
+    name = models.CharField(max_length=100, default='Новый курс по умолчанию')

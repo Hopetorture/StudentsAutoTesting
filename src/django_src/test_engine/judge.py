@@ -69,6 +69,8 @@ def parse_jsons(js):
 def judge(task_json, question):
     question = parse_jsons(question)
     task = parse_jsons(task_json)
+    if not question['testcases']:
+        return ResultTemplate.standart_res('')
     compile_fn, run_fn = TOOLCHAINS[task['Toolkit']]
     compile_result = compile_fn(code=task['Code'])
     if compile_result:
@@ -77,7 +79,7 @@ def judge(task_json, question):
             print(compile_result)
             return ResultTemplate.compile_error(compile_result)
 
-    pool = Pool(len(question['testcases']) % PROC_COUNT)
+    pool = Pool(max(len(question['testcases']) % PROC_COUNT, 1))
     #pool = Pool(1)
     runtime_results = pool.map(run_fn, question['testcases'])
     test_results = {}

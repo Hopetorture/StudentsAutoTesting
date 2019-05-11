@@ -48,7 +48,7 @@ d2 = {"QuestionID": "42",
 
 
 def run_docker():
-    out = subprocess.run(["docker", "run", "test-engine", "-q", json.dumps(d2), '-t', json.dumps(d1)])
+    subprocess.run(["docker", "run", "test-engine", "-q", json.dumps(d2), '-t', json.dumps(d1)])
 
 
 def start_for_debug():

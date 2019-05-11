@@ -1,48 +1,65 @@
 import json
+import sys
+import logging
 
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.views.generic import DetailView
-from .models import Task
 
-import sys
+from .models import Task, Course, TaskResult
+from .default_values import SUPPORTED_TOOLSETS
+from django.core.exceptions import ObjectDoesNotExist
 
 sys.path.append('..')
 from test_engine.judge import judge
 
-# Create your views here.
-SUPPORTED_TOOLSETS = [
-    {'name': 'c++98', 'cmd': 'g++ main.cpp -Wall -fpermissive -std=c++98'},
-    {'name': 'c++14', 'cmd': 'g++ main.cpp -Wall -fpermissive -std=c++14'},
-]
+
+logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
+                    level=logging.INFO)
 
 
-def get_context(request):
-    context = {
-        # 'tasks': tasks
-        # 'tasks': list(Task.objects.all())
-        'tasks': list(request.user.task_set.all())
-    }
-    # context['tasks']['test_success'] = json.loads(context['tasks']['test_success'])
-    for e in context['tasks']:
-        print(json.loads(e.tests_success))
-        e.tests_success = json.loads(e.tests_success)  # hack, fix later
+def get_context(request, course):
+    context = {}
+    ctx = list()
+    # Course.objects.get(id=course).task_pool_set
+    tasks = request.user.task_set.filter(course=Course.objects.get(id=course)).all()
+    logging.critical(tasks)
+    #for e in list(request.user.task_set.all()):
+    for e in list(tasks):
+        try:
+            task_result = e.taskresult_set.get(user=request.user)
+        except ObjectDoesNotExist:
+            task_result = TaskResult(test=e, user=request.user)
+        logging.info(json.loads(task_result.tests_success))
+        task_result.tests_success = json.loads(task_result.tests_success)  # hack, fix later
+        ctx.append({'test': e, 'result': task_result})
+    context['tasks'] = ctx
+    context['course'] = course
     return context
 
 
 @login_required
-def code_view(request):
+def student_choose_course(request):
+    #request.user.course_set
+    courses = Course.objects.filter(users=request.user)
+    context = {'courses': list(courses)}
+    return render(request, 'code_reception/assigned.html', context)
+
+
+@login_required
+def code_view(request, course=None):
+    if not course:
+        course = Course.objects.filter(users=request.user).first().id
+
     # import pdb;
-    # tasks = list(Task.objects.all())
+    # tasks = list(Task.objects.all()) # debug tutorial
     # pdb.set_trace()
     # print(tasks)
-    context = get_context(request)
     if request.method == 'POST':
-        context = get_context(request)
-        print('Posted')
-        print(request.POST)  # we can get the code here
+        context = get_context(request, course)
+        logging.info(request.POST)  # we can get the code here
 
         # after this we need to update context with the code to render it again. and with results.
         # 1) form json request for test engine
@@ -50,7 +67,7 @@ def code_view(request):
         # 3) update context end return http request
         return render(request, 'code_reception/code.html', context)
     else:
-        context = get_context(request)
+        context = get_context(request, course)
         # pdb.set_trace()
         return render(request, 'code_reception/code.html', context)
 
@@ -59,13 +76,11 @@ def code_view(request):
 def test_code(request):
     response_data = {}
     if request.method == 'POST':
-        # context = get_context(request)
-
         post = request.POST
-        print(post)  # code, lang, task_num
+        logging.info(post)  # code, lang, task_num
         question_id = post['task']
-        task = list(request.user.task_set.all())[int(question_id) - 1] # django task object
-        #task.code = post['code']
+        task = list(request.user.task_set.all())[int(question_id) - 1]  # django task object
+
         code_json = {
             'Type': 'CodeQuestion',
             'Code': post['code'],
@@ -76,10 +91,10 @@ def test_code(request):
         }
 
         question_json = task.to_question_json()
-        print(task.to_question_json())
+        logging.info(task.to_question_json())
         result = judge(task_json=code_json, question=question_json)
         response_data['result'] = result
-        update_task_status(task, result)
+        update_task_status(task, result, post['code'], request.user)
 
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -106,17 +121,19 @@ class EditTaskView(DetailView):
 def login_redirect(request):
     return redirect('/code/')
 
-# return {
-#             'compile_result': compile_result,
-#             'testcase_status': [],
-#             'status': 'Success'
-#         }
 
+def update_task_status(task, results, code, user):
+    #result = task.taskresult_set.get(user=user.profile)
+    try:
+        result = TaskResult.objects.get(test_id=task.id, user_id=user.id)
+    except ObjectDoesNotExist:
+    #if not result:
+        result = TaskResult(test_id=task.id, user_id=user.id)
 
-def update_task_status(task, results):
-    task.tests_success = json.dumps([str(case_passed['bool_stat']) for case_passed in results['testcase_status']])
-    task.solve_status = results['status']
-    task.status_color = results['color']
-    task.save()
+    result.submitted_code = code
+    result.tests_success = json.dumps([str(case_passed['bool_stat']) for case_passed in results['testcase_status']])
+    result.solve_status = results['status']
+    result.status_color = results['color']
+    result.save()
 
 

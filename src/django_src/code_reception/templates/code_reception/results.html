@@ -1,0 +1,86 @@
+{% extends "code_reception/base.html"%}
+{% block content %}
+<!--<form method="POST" enctype="multipart/form-data">-->
+{% csrf_token %}
+<script>
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+        }
+    );
+
+$('#group_dropdown').on('select2:select', function (e) {
+  console.log(123);
+  console.log(e['text']);
+});
+</script>
+<!--<div class="list-group">-->
+  <!--{% for course in courses %}-->
+      <!--<button onclick="window.location='/code/{{course.id}}'" type="button"-->
+              <!--class="list-group-item list-group-item-action">-->
+        <!--{{course.name}}-->
+      <!--</button>-->
+  <!--{% endfor %}-->
+  <!--&lt;!&ndash;<button type="button" class="list-group-item list-group-item-action active">&ndash;&gt;-->
+    <!--&lt;!&ndash;Cras justo odio&ndash;&gt;-->
+  <!--&lt;!&ndash;</button>&ndash;&gt;-->
+  <!--&lt;!&ndash;<button onclick="window.location='/code/'" type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>&ndash;&gt;-->
+<!--</div>-->
+<center>
+<h4>Результаты студентов</h4>
+<select id="group_dropdown"class="js-example-placeholder-single" style="width: 80%" name="state">
+  <option></option>
+  <option value="AL">ИДБ-15</option>
+  <option value="WY">БМФ-14</option>
+</select>
+
+<table class="table">
+  <caption>List of users</caption>
+  <thead id="thead">
+    <tr id="columns">
+      <th scope="col">#</th>
+      <!--<th scope="col">First</th>-->
+      <!--<th scope="col">Last</th>-->
+      <!--<th scope="col">Handle</th>-->
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1</th>
+      <td>Mark</td>
+      <td>Otto</td>
+      <td>@mdo</td>
+    </tr>
+    <tr>
+      <th scope="row">2</th>
+      <td>Jacob</td>
+      <td>Thornton</td>
+      <td>@fat</td>
+    </tr>
+    <tr>
+      <th scope="row">3</th>
+      <td>Larry</td>
+      <td>the Bird</td>
+      <td>@twitter</td>
+    </tr>
+  </tbody>
+</table>
+
+</center>
+<script>
+$(".js-example-placeholder-single").select2({
+    placeholder: "Группа",
+    allowClear: false
+});
+
+    $('#group_dropdown').on('select2:select', function (e) {
+  console.log($('#group_dropdown').select2('data')[0]['text']);
+});
+</script>
+<script>
+function update_table(){
+    document.getElementById("columns").innerHTML += '<th scope="col">First</th>';
+}
+</script>
+<button onclick="update_table();">abc</button>
+
+{% endblock content %}

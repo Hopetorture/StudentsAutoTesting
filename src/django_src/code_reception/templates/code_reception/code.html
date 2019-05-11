@@ -2,6 +2,7 @@
 {% block content %}
 <!--<form method="POST" enctype="multipart/form-data">-->
     {% csrf_token %}
+<h4><center>{{course.name}}</center></h4>
 <div id="task_tabs" class="container">
    <div class="tabbable"> <!-- Only required for left/right tabs -->
        <ul class="nav nav-tabs">
@@ -19,10 +20,10 @@
                     <div class="panel panel-default">
 
                         <div class="panel-heading">
-                            <h3 id="Title" class="panel-title">{{task.title}}</h3>
+                            <h3 id="Title" class="panel-title">{{task.test.title}}</h3>
                         </div>
                         <div class="panel-body">
-                            {{task.text}}
+                            {{task.test.text}}
                         </div>
                         </div>
                             <!--<div class="panel panel-default">-->
@@ -48,22 +49,22 @@
                                 $(this).parents(".dropdown").find('.btn').val($(this).data('value'));});
                             </script>
                         <label id="status">
-                            Статус: <font id="status_color" color="{{task.status_color}}"> {{task.solve_status}}</font>
+                            Статус: <font id="status_color" color="{{task.result.status_color}}"> {{task.result.solve_status}}</font>
                         </label>
                         </div>
 
 
 
                             <div class="form-group">
-                                <label for="txtarea">Код программы</label>
-                                <textarea name='code' class="form-control" id="txtarea" rows="1"></textarea>
+                                <label for="txtarea">Код программы </label>
+                                <textarea name='code' class="form-control" id="txtarea" rows="13">{{task.result.submitted_code}}</textarea>
                                 <script>
-                                    function expandTextarea(id) {
-                                    document.getElementById(id).addEventListener('keyup', function() {
-                                    this.style.overflow = 'hidden';
-                                    this.style.height = 0;
-                                    this.style.height = this.scrollHeight + 'px';}, false);}
-                                    expandTextarea('txtarea');
+                                    <!--function expandTextarea(id) {-->
+                                    <!--document.getElementById(id).addEventListener('keyup', function() {-->
+                                    <!--this.style.overflow = 'hidden';-->
+                                    <!--this.style.height = 0;-->
+                                    <!--this.style.height = this.scrollHeight + 'px';}, false);}-->
+                                    <!--expandTextarea('txtarea');-->
                                 </script>
                             </div>
                             <script>
@@ -89,6 +90,7 @@
                                         $('#status_color').attr('color', res['color']);
                                         $('#Compile_error').text(res['compile_result']);
                                         testcases = res['testcase_status'];
+                                        console.log(res)
                                         for(var i = 0; i < testcases.length; i++){
                                             //console.log(testcases[i]);
                                             var idx = String(i)//i.toString(10);
@@ -116,7 +118,7 @@
                             <!--} );-->
 
                         <ul class="list-group" id="results">
-                            {% for result in task.tests_success %}
+                            {% for result in task.result.tests_success %}
                                 {% if result == 'True' %}
                                     <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-success">Test #{{forloop.counter}} Success</li>
                                 {% else %}
