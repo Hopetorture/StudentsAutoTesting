@@ -63,3 +63,8 @@ class Course(models.Model):
     tasks_pool = models.ManyToManyField(Task)
     users = models.ManyToManyField(User)
     name = models.CharField(max_length=100, default='Новый курс по умолчанию')
+
+
+# class StudentGroup(models.Model):
+#     group_name = models.CharField(max_length=30)
+    # student = models.ForeignKey(User, on_delete=models.CASCADE)

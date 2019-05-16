@@ -9,8 +9,7 @@
     );
 
 $('#group_dropdown').on('select2:select', function (e) {
-  console.log(123);
-  console.log(e['text']);
+
 });
 </script>
 <!--<div class="list-group">-->
@@ -29,8 +28,11 @@ $('#group_dropdown').on('select2:select', function (e) {
 <h4>Результаты студентов</h4>
 <select id="group_dropdown"class="js-example-placeholder-single" style="width: 80%" name="state">
   <option></option>
-  <option value="AL">ИДБ-15</option>
-  <option value="WY">БМФ-14</option>
+  {% for group in groups %}
+    <option value="{{group.group_name}}">{{group.group_name}}</option>
+  {% endfor %}
+  <!--<option value="AL">ИДБ-15</option>-->
+  <!--<option value="WY">БМФ-14</option>-->
 </select>
 
 <table class="table">
@@ -43,25 +45,25 @@ $('#group_dropdown').on('select2:select', function (e) {
       <!--<th scope="col">Handle</th>-->
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
+  <tbody id="mtable">
+    <!--<tr>-->
+      <!--<th scope="row">1</th>-->
+      <!--<td>Mark</td>-->
+      <!--<td>Otto</td>-->
+      <!--<td>@mdo</td>-->
+    <!--</tr>-->
+    <!--<tr>-->
+      <!--<th scope="row">2</th>-->
+      <!--<td>Jacob</td>-->
+      <!--<td>Thornton</td>-->
+      <!--<td>@fat</td>-->
+    <!--</tr>-->
+    <!--<tr>-->
+      <!--<th scope="row">3</th>-->
+      <!--<td>Larry</td>-->
+      <!--<td>the Bird</td>-->
+      <!--<td>@twitter</td>-->
+    <!--</tr>-->
   </tbody>
 </table>
 
@@ -73,8 +75,31 @@ $(".js-example-placeholder-single").select2({
 });
 
     $('#group_dropdown').on('select2:select', function (e) {
-  console.log($('#group_dropdown').select2('data')[0]['text']);
+  //console.log($('#group_dropdown').select2('data')[0]['text']);
+  var group_name = $('#group_dropdown').select2('data')[0]['text']
+
+  var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+  var input_dict = {
+      group: group_name,
+      csrfmiddlewaretoken: CSRFtoken
+  }
+  var cb = function(data){
+      console.log(data);
+      var table = data['table']
+      for(var i = 0; i < table.length; i++){
+          student = table[i];
+          document.getElementById("mtable").innerHTML += `<tr>
+                                                            <th scope='row'>${student['idx']}</th>
+                                                            <td>${student['name']}</td>
+                                                          </tr>`;
+
+
+      }
+  };
+  $.post("generate_table", input_dict, cb);
 });
+
+
 </script>
 <script>
 function update_table(){

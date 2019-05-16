@@ -7,10 +7,11 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic import DetailView
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Task, Course, TaskResult
 from .default_values import SUPPORTED_TOOLSETS
-from django.core.exceptions import ObjectDoesNotExist
+from users.models import StudentGroup, Profile
 
 sys.path.append('..')
 from test_engine.judge import judge
@@ -110,7 +111,8 @@ def login(request):
 
 @login_required
 def results_view(request):
-    return render(request, 'code_reception/results.html')
+    context = {'groups': list(StudentGroup.objects.all())}
+    return render(request, 'code_reception/results.html', context)
 
 
 class EditTaskView(DetailView):
@@ -135,5 +137,20 @@ def update_task_status(task, results, code, user):
     result.solve_status = results['status']
     result.status_color = results['color']
     result.save()
+
+
+@login_required
+def generate_table(request):
+    group = request.POST['group']
+    students = StudentGroup.objects.all().get(group_name=group).students.all()
+    students = StudentGroup.objects.all().get(group_name=group).students.all().order_by('last_name', 'first_name')
+    response = []
+    for i, student in enumerate(students):
+        response.append({
+            'name': ' '.join([student.last_name, student.first_name]),
+            'idx':  i + 1,
+        })
+
+    return HttpResponse(json.dumps({"table": response}), content_type="application/json")
 
 

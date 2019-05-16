@@ -13,5 +13,6 @@ urlpatterns = [
     path('about/', views.about, name='code_about'),
     #path('login/', views.login, name='login_page'),
     path('results/', views.results_view, name='result_table'),
+    path('results/generate_table', views.generate_table, name='generate_table')
     # result_table_view
 ]

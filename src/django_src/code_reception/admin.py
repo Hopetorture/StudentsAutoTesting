@@ -5,3 +5,4 @@ admin.site.register(Task)
 admin.site.register(TestCase)
 admin.site.register(TaskResult)
 admin.site.register(Course)
+
