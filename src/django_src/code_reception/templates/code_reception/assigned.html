@@ -4,7 +4,7 @@
 {% csrf_token %}
 <div class="list-group">
   {% for course in courses %}
-      <button onclick="window.location='/code/{{course.id}}'" type="button"
+      <button onclick="window.location='{{next_link}}{{course.id}}'" type="button"
               class="list-group-item list-group-item-action">
         {{course.name}}
       </button>

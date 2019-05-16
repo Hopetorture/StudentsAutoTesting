@@ -9,10 +9,12 @@ urlpatterns = [
     path('assigned/', views.student_choose_course, name='assigned'),
     path('code/', views.code_view, name='code_page'),
     path('code/<int:course>', views.code_view, name='code_page'),
+    path('code/<int:course>/<int:student_id>', views.code_view, name='specific_code_page'),
     path('code/test', views.test_code, name='test_code'),
     path('about/', views.about, name='code_about'),
     #path('login/', views.login, name='login_page'),
-    path('results/', views.results_view, name='result_table'),
+    path('get_course/', views.all_choose_course, name='all_courses_view'),
+    path('results/<int:pk>', views.results_view, name='result_table'),
     path('results/generate_table', views.generate_table, name='generate_table')
     # result_table_view
 ]

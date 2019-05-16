@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Task, Course, TaskResult
 from .default_values import SUPPORTED_TOOLSETS
-from users.models import StudentGroup, Profile
+from users.models import StudentGroup, Profile, User
 
 sys.path.append('..')
 from test_engine.judge import judge
@@ -21,18 +21,24 @@ logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.INFO)
 
 
-def get_context(request, course):
+def get_context(request, course, student):
     context = {}
     ctx = list()
+    if not student:
+        user = request.user
+    else:
+        user = student
     # Course.objects.get(id=course).task_pool_set
-    tasks = request.user.task_set.filter(course=Course.objects.get(id=course)).all()
+    tasks = user.task_set.filter(course=Course.objects.get(id=course)).all()
     logging.critical(tasks)
     #for e in list(request.user.task_set.all()):
     for e in list(tasks):
         try:
-            task_result = e.taskresult_set.get(user=request.user)
+            task_result = e.taskresult_set.get(user=user)
         except ObjectDoesNotExist:
-            task_result = TaskResult(test=e, user=request.user)
+            task_result = TaskResult(test=e, user=user)
+            task_result.save()
+
         logging.info(json.loads(task_result.tests_success))
         task_result.tests_success = json.loads(task_result.tests_success)  # hack, fix later
         ctx.append({'test': e, 'result': task_result})
@@ -45,30 +51,45 @@ def get_context(request, course):
 def student_choose_course(request):
     #request.user.course_set
     courses = Course.objects.filter(users=request.user)
-    context = {'courses': list(courses)}
+    context = {'courses': list(courses),
+               'next_link': '/code/'}
     return render(request, 'code_reception/assigned.html', context)
 
+@login_required
+def all_choose_course(request):
+    #request.user.course_set
+    courses = Course.objects.all()
+    context = {'courses': list(courses),
+               'next_link': '/results/'}
+    return render(request, 'code_reception/assigned.html', context)
 
 @login_required
-def code_view(request, course=None):
+def code_view(request, course=None, student_id=None):
+    print('student id:', student_id)
     if not course:
         course = Course.objects.filter(users=request.user).first().id
 
+    if student_id:
+        user = User.objects.all().get(id=student_id)
+    else:
+        user = None
     # import pdb;
     # tasks = list(Task.objects.all()) # debug tutorial
     # pdb.set_trace()
     # print(tasks)
     if request.method == 'POST':
-        context = get_context(request, course)
+        context = get_context(request, course, user)
         logging.info(request.POST)  # we can get the code here
 
         # after this we need to update context with the code to render it again. and with results.
         # 1) form json request for test engine
         # 2) get response
         # 3) update context end return http request
+        print(context)
         return render(request, 'code_reception/code.html', context)
     else:
-        context = get_context(request, course)
+        context = get_context(request, course, user)
+        print(context)
         # pdb.set_trace()
         return render(request, 'code_reception/code.html', context)
 
@@ -110,8 +131,11 @@ def login(request):
 
 
 @login_required
-def results_view(request):
-    context = {'groups': list(StudentGroup.objects.all())}
+def results_view(request, pk):
+    context = {'groups': list(StudentGroup.objects.all()),
+               'course_id': pk,
+               'course_name': Course.objects.get(id=pk).name}
+
     return render(request, 'code_reception/results.html', context)
 
 
@@ -131,6 +155,7 @@ def update_task_status(task, results, code, user):
     except ObjectDoesNotExist:
     #if not result:
         result = TaskResult(test_id=task.id, user_id=user.id)
+        result.save()
 
     result.submitted_code = code
     result.tests_success = json.dumps([str(case_passed['bool_stat']) for case_passed in results['testcase_status']])
@@ -142,15 +167,32 @@ def update_task_status(task, results, code, user):
 @login_required
 def generate_table(request):
     group = request.POST['group']
-    students = StudentGroup.objects.all().get(group_name=group).students.all()
+    course = Course.objects.get(id=request.POST['course'])
     students = StudentGroup.objects.all().get(group_name=group).students.all().order_by('last_name', 'first_name')
     response = []
+    max_tasks = 0
     for i, student in enumerate(students):
+        student_tasks = student.task_set.all().filter(course=course)
+        # student_tasks.first().taskresult_set.all().filter(user=student)
+        student_results = []
+        for task in student_tasks:
+            try:
+                student_results.append(task.taskresult_set.all().filter(user=student).first().solve_status)
+            except AttributeError:
+                runstatus = TaskResult(test_id=task.id, user_id=student.id)
+                runstatus.save()
+                student_results.append(runstatus.solve_status)
+
+        # student_results = [res.solve_status for res in student.taskresult_set.all()]
+        if max_tasks < len(student_tasks):
+            max_tasks = len(student_tasks)
         response.append({
             'name': ' '.join([student.last_name, student.first_name]),
             'idx':  i + 1,
+            'results': student_results,
+            'db_user_id': student.id,
+            'course_id': course.id
         })
-
-    return HttpResponse(json.dumps({"table": response}), content_type="application/json")
-
-
+    #max_task_num =
+    context = {"table": response, 'rows': max_tasks}
+    return HttpResponse(json.dumps(context), content_type="application/json")

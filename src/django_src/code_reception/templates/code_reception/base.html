@@ -40,7 +40,17 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-          <li><a href="{% url 'assigned' %}" style="font-size:20px;">Курсы</a></li>
+
+            {% for group in user.groups.all %}
+              {% if group.name == 'Student' %}
+                <li><a href="{% url 'assigned' %}" style="font-size:20px;">Мои курсы</a></li>
+              {% endif %}
+              {% if group.name == 'Teacher' %}
+                <li><a href="{% url 'all_courses_view' %}" style="font-size:20px;">Результаты</a></li>
+              {% endif %}
+            {% endfor %}
+
+
       </ul>
       <form class="navbar-form navbar-left">
       </form>

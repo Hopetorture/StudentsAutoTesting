@@ -25,7 +25,8 @@ $('#group_dropdown').on('select2:select', function (e) {
   <!--&lt;!&ndash;<button onclick="window.location='/code/'" type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>&ndash;&gt;-->
 <!--</div>-->
 <center>
-<h4>Результаты студентов</h4>
+  <h4>{{course_name}}</h4>
+  <h4>Результаты студентов</h4>
 <select id="group_dropdown"class="js-example-placeholder-single" style="width: 80%" name="state">
   <option></option>
   {% for group in groups %}
@@ -35,12 +36,12 @@ $('#group_dropdown').on('select2:select', function (e) {
   <!--<option value="WY">БМФ-14</option>-->
 </select>
 
-<table class="table">
-  <caption>List of users</caption>
+<table id="_table_" class="table">
+  <caption>Успеваемость</caption>
   <thead id="thead">
     <tr id="columns">
       <th scope="col">#</th>
-      <!--<th scope="col">First</th>-->
+      <th scope="col">Студент</th>
       <!--<th scope="col">Last</th>-->
       <!--<th scope="col">Handle</th>-->
     </tr>
@@ -81,16 +82,39 @@ $(".js-example-placeholder-single").select2({
   var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
   var input_dict = {
       group: group_name,
-      csrfmiddlewaretoken: CSRFtoken
+      csrfmiddlewaretoken: CSRFtoken,
+      course: {{course_id}}
   }
   var cb = function(data){
       console.log(data);
-      var table = data['table']
+      var table = data['table'];
+      var rows = data['rows'];
+      //document.getElementById("_table_").css("visibility", "visible");
+      for (var i = 1; i <= rows; i++){
+          document.getElementById("columns").innerHTML += `<th scope="col">Задача ${i}</th>`;
+      }
+
       for(var i = 0; i < table.length; i++){
           student = table[i];
+          var res_status = " "
+          for (var j = 0; j < student['results'].length; j++){
+              res_list = student['results'][j];
+              if (res_list === "Success") {
+                  res_status += `<td><font size='6' color='#009900'>&#10003;</font></td>`
+              }
+              else if (res_list === "Fail") {
+                  res_status += "<td><font size='6' color='#b30000'>-</font></td>"
+              }
+              else {
+                  res_status += "<td><font size='6' color='black'>.</font></td>"
+              }
+
+          }
+          console.log(res_status);
           document.getElementById("mtable").innerHTML += `<tr>
                                                             <th scope='row'>${student['idx']}</th>
-                                                            <td>${student['name']}</td>
+                                                            <td><a href="/code/${student['course_id']}/${student['db_user_id']}">${student['name']}</a></td>
+                                                            ${res_status}
                                                           </tr>`;
 
 
@@ -106,6 +130,4 @@ function update_table(){
     document.getElementById("columns").innerHTML += '<th scope="col">First</th>';
 }
 </script>
-<button onclick="update_table();">abc</button>
-
 {% endblock content %}
