@@ -31,8 +31,8 @@ textarea {
 margin:15px 0px;
   padding:5px;
   line-height:16px;
-  width:15%;
-  display:block;
+  display: inline-block;
+
 }
 #results{
   line-height:16px;

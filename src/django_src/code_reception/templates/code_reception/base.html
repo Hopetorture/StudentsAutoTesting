@@ -34,7 +34,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">MPEI Tests</a>
+      <!--<a class="navbar-brand" href="/">МЭИ Тесты</a>-->
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
@@ -65,11 +65,11 @@
               <!--{% endif %}-->
         {% if user.is_authenticated %}
             <li><a>{{user.get_full_name|default:user.username}}</a></li>
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'profile' %}">Профиль</a></li>
+            <li><a href="{% url 'logout' %}">Выход</a></li>
         {% else %}
-            <li><a href="{% url 'login' %}">Login</a></li>
-            <li><a href="{% url 'register' %}">Register</a></li>
+            <li><a href="{% url 'login' %}">Вход</a></li>
+            <li><a href="{% url 'register' %}">Регистрация</a></li>
         {% endif %}
       </ul>
     </div><!-- /.navbar-collapse -->
