@@ -42,6 +42,7 @@ $('#group_dropdown').on('select2:select', function (e) {
     <tr id="columns">
       <th scope="col">#</th>
       <th scope="col">Студент</th>
+      <th scope="col">Прогресс</th>
       <!--<th scope="col">Last</th>-->
       <!--<th scope="col">Handle</th>-->
     </tr>
@@ -90,30 +91,45 @@ $(".js-example-placeholder-single").select2({
       var table = data['table'];
       var rows = data['rows'];
       //document.getElementById("_table_").css("visibility", "visible");
+      //document.getElementById("columns").innerHTML += `<th scope="col">Прогресс</th>`;
       for (var i = 1; i <= rows; i++){
           document.getElementById("columns").innerHTML += `<th scope="col">Задача ${i}</th>`;
       }
 
       for(var i = 0; i < table.length; i++){
           student = table[i];
+          var total_tasks = student['results'].length;
+          var success_tasks = 0;
+          var fail_tasks = 0;
+          var no_run_tasks = 0;
           var res_status = " "
-          for (var j = 0; j < student['results'].length; j++){
+          for (var j = 0; j < total_tasks; j++){
               res_list = student['results'][j];
               if (res_list === "Success") {
-                  res_status += `<td><font size='6' color='#009900'>&#10003;</font></td>`
+                  res_status += `<td><font size='6' color='#009900'>&#10003;</font></td>`;
+                  success_tasks += 1;
               }
               else if (res_list === "Fail") {
-                  res_status += "<td><font size='6' color='#b30000'>-</font></td>"
+                  res_status += "<td><font size='6' color='#b30000'>-</font></td>";
+                  fail_tasks += 1;
               }
               else {
                   res_status += "<td><font size='6' color='black'>.</font></td>"
+                  no_run_tasks += 1;
               }
 
           }
+          var success_percents = Math.round((total_tasks - (fail_tasks + no_run_tasks)) / total_tasks * 100)
           console.log(res_status);
           document.getElementById("mtable").innerHTML += `<tr>
                                                             <th scope='row'>${student['idx']}</th>
                                                             <td><a href="/code/${student['course_id']}/${student['db_user_id']}">${student['name']}</a></td>
+                                                            <td>
+                                                                <font  color='green'>${success_tasks},</font>
+                                                                <font  color='red'>${fail_tasks},</font>
+                                                                <font  color='black'>${no_run_tasks}</font>
+                                                                <font  color='green'> (${success_percents}%)</font>
+                                                            </td>
                                                             ${res_status}
                                                           </tr>`;
 

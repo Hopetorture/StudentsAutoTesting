@@ -186,12 +186,14 @@ def generate_table(request):
         # student_results = [res.solve_status for res in student.taskresult_set.all()]
         if max_tasks < len(student_tasks):
             max_tasks = len(student_tasks)
+        progress_str = []
         response.append({
             'name': ' '.join([student.last_name, student.first_name]),
             'idx':  i + 1,
             'results': student_results,
             'db_user_id': student.id,
-            'course_id': course.id
+            'course_id': course.id,
+            'progress': 0
         })
     #max_task_num =
     context = {"table": response, 'rows': max_tasks}
