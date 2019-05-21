@@ -1,0 +1,20 @@
+{% extends "code_reception/base.html"%}
+{% block content %}
+{% load crispy_forms_tags %}
+<!--<form method="POST" enctype="multipart/form-data">-->
+<h2>Новая задача</h2>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form| crispy}}
+
+        <div id="div_id_text2" class="form-group">
+            <label for="id_text2" class="control-label  requiredField">
+                Описание задачи 2
+                <span class="asteriskField">*</span>
+            </label>
+            <div class="controls ">
+               <textarea name="text2" cols="40" rows="10" class="textarea form-control" required="" id="id_text2"></textarea>
+            </div>
+        </div>
+        <button type="submit" class="save btn btn-default">Сохранить</button>
+    </form>
+{% endblock content %}

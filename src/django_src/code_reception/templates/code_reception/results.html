@@ -12,6 +12,18 @@ $('#group_dropdown').on('select2:select', function (e) {
 
 });
 </script>
+<menu id="ctxMenu">
+    <menu title="File">
+        <menu title="Save"></menu>
+        <menu title="Save As"></menu>
+        <menu title="Open"></menu>
+    </menu>
+    <menu title="Edit">
+        <menu title="Cut"></menu>
+        <menu title="Copy"></menu>
+        <menu title="Paste"></menu>
+    </menu>
+</menu>
 <!--<div class="list-group">-->
   <!--{% for course in courses %}-->
       <!--<button onclick="window.location='/code/{{course.id}}'" type="button"-->
@@ -71,6 +83,37 @@ $('#group_dropdown').on('select2:select', function (e) {
 
 </center>
 <script>
+function fn(e) {
+              //alert('abc');
+
+             console.log();
+              e.preventDefault();
+              //var ctxMenu = document.getElementById("ctxMenu");
+              //ctxMenu.style.display = "block";
+              //ctxMenu.style.left = (event.pageX - 10)+"px";
+              //ctxMenu.style.top = (event.pageY - 10)+"px";
+    var student_id = e.target.id;
+    var group_name = $('#group_dropdown').select2('data')[0]['text']
+    var top = e.pageY + 10;
+    var left = e.pageX + 10;
+    var _menu = document.getElementById("erase_link");
+    var erase_link= `remove_student_from_group/${student_id}/${group_name}`;
+    var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+    var input_dict = {
+      group: group_name,
+      csrfmiddlewaretoken: CSRFtoken,
+      course: {{course_id}}
+    }
+    _menu.onclick = function() {$.post(`${erase_link}`, input_dict);}
+    $("#context-menu").css({
+    display: "block",
+    top: top,
+    left: left
+    }).addClass("show");
+    return false; //blocks default Webbrowser right click menu
+
+}
+
 $(".js-example-placeholder-single").select2({
     placeholder: "Группа",
     allowClear: false
@@ -96,6 +139,7 @@ $(".js-example-placeholder-single").select2({
           document.getElementById("columns").innerHTML += `<th scope="col">Задача ${i}</th>`;
       }
 
+      var student_ids = [];
       for(var i = 0; i < table.length; i++){
           student = table[i];
           var total_tasks = student['results'].length;
@@ -123,7 +167,7 @@ $(".js-example-placeholder-single").select2({
           console.log(res_status);
           document.getElementById("mtable").innerHTML += `<tr>
                                                             <th scope='row'>${student['idx']}</th>
-                                                            <td><a href="/code/${student['course_id']}/${student['db_user_id']}">${student['name']}</a></td>
+                                                            <td><a id=${student['db_user_id']} title=${student['email']} href="/code/${student['course_id']}/${student['db_user_id']}">${student['name']}</a></td>
                                                             <td>
                                                                 <font  color='green'>${success_tasks},</font>
                                                                 <font  color='red'>${fail_tasks},</font>
@@ -133,7 +177,14 @@ $(".js-example-placeholder-single").select2({
                                                             ${res_status}
                                                           </tr>`;
 
-
+          var id_ = `${student['db_user_id']}`;
+          console.log(id_);
+          student_ids.push(id_);
+      }
+      for (const id_ of student_ids)
+      {
+          document.getElementById(id_).addEventListener('contextmenu', fn, false);
+          document.addEventListener('click', function(){$("#context-menu").removeClass("show").hide();}, false);
       }
   };
   $.post("generate_table", input_dict, cb);
@@ -141,6 +192,12 @@ $(".js-example-placeholder-single").select2({
 
 
 </script>
+<div class="dropdown-menu dropdown-menu-sm" id="context-menu">
+          <a class="dropdown-item" href="#" id="erase_link" onclick="">Удалить студента из группы</a>
+          <!--<button  onclick="sendTask()">Протестировать</button>-->
+          <!--<a class="dropdown-item" href="#">Another action</a>-->
+          <!--<a class="dropdown-item" href="#">Something else here</a>-->
+</div>
 <script>
 function update_table(){
     document.getElementById("columns").innerHTML += '<th scope="col">First</th>';

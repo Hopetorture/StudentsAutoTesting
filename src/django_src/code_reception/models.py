@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth.models import User
 from django.db import models
+from users.models import StudentGroup
 
 from users.models import Profile
 from .default_values import CPP_TEMPLATE
@@ -61,8 +62,10 @@ class TestCase(models.Model):
 
 class Course(models.Model):
     tasks_pool = models.ManyToManyField(Task)
+    assigned_groups = models.ManyToManyField(StudentGroup)
     users = models.ManyToManyField(User)
     name = models.CharField(max_length=100, default='Новый курс по умолчанию')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_set', null=True)
 
 
 # class StudentGroup(models.Model):

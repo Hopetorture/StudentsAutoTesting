@@ -25,6 +25,7 @@ from users import views as user_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('code_reception.urls')),
+    path('', include('teacher_controls.urls')),
     path('register/', user_view.register, name='register'),
     path('login/', auth_view.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', auth_view.LogoutView.as_view(template_name='users/logout.html'), name='logout'),

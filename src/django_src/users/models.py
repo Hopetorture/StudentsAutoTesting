@@ -7,7 +7,7 @@ class StudentGroup(models.Model):
     students = models.ManyToManyField(User, default=None, blank=True)
 
     def __str__(self):
-        return f'Группа: {self.group_name}'
+        return f'{self.group_name}'
 
 
 class Profile(models.Model):

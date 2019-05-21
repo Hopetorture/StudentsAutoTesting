@@ -47,6 +47,9 @@
               {% endif %}
               {% if group.name == 'Teacher' %}
                 <li><a href="{% url 'all_courses_view' %}" style="font-size:20px;">Результаты</a></li>
+                <li><a href="{% url 'all_courses_view' %}" style="font-size:20px;">Управление курсами</a></li>
+                <li><a href="{% url 'create_course' %}" style="font-size:20px;">Создать курс</a></li>
+                <li><a href="{% url 'create_task' %}" style="font-size:20px;">Создать задачу</a></li>
               {% endif %}
             {% endfor %}
 
@@ -56,13 +59,6 @@
       </form>
       <ul class="nav navbar-nav navbar-right">
 
-           <!--{% if user.is_authenticated %}-->
-                <!--<a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>-->
-                <!--<a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>-->
-              <!--{% else %}-->
-                <!--<a class="nav-item nav-link" href="{% url 'login' %}">Login</a>-->
-                <!--<a class="nav-item nav-link" href="{% url 'register' %}">Register</a>-->
-              <!--{% endif %}-->
         {% if user.is_authenticated %}
             <li><a>{{user.get_full_name|default:user.username}}</a></li>
             <li><a href="{% url 'profile' %}">Профиль</a></li>
@@ -75,47 +71,6 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-
-    <!--<header class="site-header">-->
-        <!--&lt;!&ndash;<ul class="nav navbar-nav navbar-right">&ndash;&gt;-->
-        <!--&lt;!&ndash;<li><a href="#">Link</a></li>&ndash;&gt;-->
-        <!--&lt;!&ndash;<li class="dropdown">&ndash;&gt;-->
-          <!--&lt;!&ndash;<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>&ndash;&gt;-->
-          <!--&lt;!&ndash;<ul class="dropdown-menu">&ndash;&gt;-->
-            <!--&lt;!&ndash;<li><a href="#">Action</a></li>&ndash;&gt;-->
-            <!--&lt;!&ndash;<li><a href="#">Another action</a></li>&ndash;&gt;-->
-            <!--&lt;!&ndash;<li><a href="#">Something else here</a></li>&ndash;&gt;-->
-            <!--&lt;!&ndash;<li role="separator" class="divider"></li>&ndash;&gt;-->
-            <!--&lt;!&ndash;<li><a href="#">Separated link</a></li>&ndash;&gt;-->
-          <!--&lt;!&ndash;</ul>&ndash;&gt;-->
-        <!--&lt;!&ndash;</li>&ndash;&gt;-->
-      <!--&lt;!&ndash;</ul>&ndash;&gt;-->
-      <!--<nav class="navbar navbar-expand-md navbar-dark fixed-top">-->
-        <!--<div class="container">-->
-          <!--<a class="navbar-brand mr-4" href="{% url 'code_page' %}">Django Blog</a>-->
-          <!--&lt;!&ndash;<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">&ndash;&gt;-->
-          <!--&lt;!&ndash;<span class="navbar-toggler-icon"></span>&ndash;&gt;-->
-          <!--&lt;!&ndash;</button>&ndash;&gt;-->
-          <!--<div class="collapse navbar-collapse" id="navbarToggle">-->
-            <!--<div class="navbar-nav mr-auto">-->
-              <!--<a class="nav-item nav-link" href="{% url 'code_page' %}">Home</a>-->
-              <!--<a class="nav-item nav-link" href="{% url 'code_about' %}">About</a>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; Navbar Right Side &ndash;&gt;-->
-            <!--<div class="navbar-nav">-->
-              <!--{% if user.is_authenticated %}-->
-                <!--<a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>-->
-                <!--<a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>-->
-              <!--{% else %}-->
-                <!--<a class="nav-item nav-link" href="{% url 'login' %}">Login</a>-->
-                <!--<a class="nav-item nav-link" href="{% url 'register' %}">Register</a>-->
-              <!--{% endif %}-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</nav>-->
-    <!--</header>-->
-
 <div class="container">
     {% if messages %}
         {% for message in messages %}

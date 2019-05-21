@@ -15,6 +15,8 @@ urlpatterns = [
     #path('login/', views.login, name='login_page'),
     path('get_course/', views.all_choose_course, name='all_courses_view'),
     path('results/<int:pk>', views.results_view, name='result_table'),
-    path('results/generate_table', views.generate_table, name='generate_table')
+    path('results/generate_table', views.generate_table, name='generate_table'),
+    path('results/remove_student_from_group/<int:student_id>/<str:group_name>', views.remove_student_from_group, name='rm_student')
     # result_table_view
 ]
+# remove_student_from_group(request, student_id, group_name)

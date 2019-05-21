@@ -189,6 +189,7 @@ def generate_table(request):
         progress_str = []
         response.append({
             'name': ' '.join([student.last_name, student.first_name]),
+            'email': student.email,
             'idx':  i + 1,
             'results': student_results,
             'db_user_id': student.id,
@@ -198,3 +199,14 @@ def generate_table(request):
     #max_task_num =
     context = {"table": response, 'rows': max_tasks}
     return HttpResponse(json.dumps(context), content_type="application/json")
+
+@login_required
+def remove_student_from_group(request, student_id, group_name):
+    try:
+        print('removed url hit')
+        print(student_id, group_name)
+        student_obj = User.objects.all().get(pk=student_id)
+        StudentGroup.objects.all().get(group_name=group_name).students.remove(student_obj)
+        return HttpResponse(status=200)
+    except:
+        return HttpResponse(status=500)
