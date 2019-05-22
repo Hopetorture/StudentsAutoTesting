@@ -67,6 +67,24 @@ class Course(models.Model):
     name = models.CharField(max_length=100, default='Новый курс по умолчанию')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_set', null=True)
 
+    def __str__(self):
+        def name(s):
+            l = s.split()
+            new = ""
+            for i in range(len(l) - 1):
+                s = l[i]
+                new += (s[0].upper() + '.')
+            new += l[-1].title()
+            return new
+
+        try:
+            author = name(self.author.get_full_name())
+        except AttributeError:
+            author = ''
+        return f"{self.name}, {author}"
+
+class CoursesCollection(models.Model):
+    courses = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True)
 
 # class StudentGroup(models.Model):
 #     group_name = models.CharField(max_length=30)

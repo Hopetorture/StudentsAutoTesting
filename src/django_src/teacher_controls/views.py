@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import CourseCreateForm, TaskCreateForm
+from .forms import CourseCreateForm, TaskCreateForm, CreateTaskModelForm
 from code_reception.models import Course
 
 # Create your views here.
@@ -54,5 +54,6 @@ def create_task(request):
     else:
         print('task')
         form = TaskCreateForm()
+        courses_form = CreateTaskModelForm()
         #return HttpResponse()
-    return render(request, 'teacher_controls/create_task.html', {'form': form})
+    return render(request, 'teacher_controls/create_task.html', {'form': form, 'courses_form': courses_form})

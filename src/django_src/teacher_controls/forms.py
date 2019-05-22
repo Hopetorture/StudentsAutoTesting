@@ -1,5 +1,5 @@
 from django import forms
-from code_reception.models import Course, Task
+from code_reception.models import Course, Task, CoursesCollection
 
 class CourseCreateForm(forms.ModelForm):
     class Meta:
@@ -19,5 +19,20 @@ class CourseCreateForm(forms.ModelForm):
 class TaskCreateForm(forms.Form):
     title = forms.CharField(label='Название задачи', required=True,)
     text = forms.CharField(label='Описание задачи', required=True, widget=forms.Textarea)
+
+
+class CreateTaskModelForm(forms.ModelForm):
+    class Meta:
+        model = CoursesCollection  # course_set
+        fields = ('courses',)
+        labels = {
+            'courses': 'Добавить к курсам'
+        }
+        widgets = {
+            'courses': forms.SelectMultiple()
+        }
+    def __init__(self, *args, **kwargs):
+        super(CreateTaskModelForm,  self).__init__(*args, **kwargs)
+        self.fields['courses'].required = False
 
 
