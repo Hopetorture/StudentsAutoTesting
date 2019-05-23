@@ -12,6 +12,7 @@ urlpatterns = [
     path('code/<int:course>', views.code_view, name='code_page'),
     path('code/<int:course>/<int:student_id>', views.code_view, name='specific_code_page'),
     path('code/test', views.test_code, name='test_code'),
+    path('test/', views.test_code, name='test_code'),
     path('about/', views.about, name='code_about'),
     #path('login/', views.login, name='login_page'),
     path('get_course/', views.all_choose_course, name='all_courses_view'),

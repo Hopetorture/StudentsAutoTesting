@@ -115,7 +115,7 @@
                         }
 
                         var cb = function(data){
-                            //console.log(data['result']);
+                            console.log(data['result']);
                             var res = data['result'];
                             $('#status_color').text(get_correct_testcase_text(res['status']));
                             $('#status_color').attr('color', res['color']);
@@ -167,7 +167,19 @@
 
                             }
                         }
-                        $.post("test", input_dict, cb);
+                        // callback end
+                        var current_path = window.location.pathname.split('/');
+                        let [code_url, course_id, student_id] = current_path.slice(Math.max(current_path.length - 3, 1))
+                        console.log(code_url)
+                        console.log(course_id)
+                        console.log(student_id)
+                        if (student_id !== undefined){
+                            input_dict['student_id'] = student_id
+                        }
+                        testing_request = $.post("/test/", input_dict, cb);
+                        testing_request.fail(function () {
+                           location.reload();
+                        });
 
                     }
                 </script>

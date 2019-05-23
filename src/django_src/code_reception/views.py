@@ -1,17 +1,18 @@
 import json
-import sys
 import logging
+import sys
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic import DetailView
-from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Task, Course, TaskResult
+from users.models import StudentGroup, User
 from .default_values import SUPPORTED_TOOLSETS
-from users.models import StudentGroup, Profile, User
+from .models import Task, Course, TaskResult
 
 sys.path.append('..')
 from test_engine.judge import judge
@@ -21,7 +22,7 @@ logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.INFO)
 
 
-def get_context(request, course, student):
+def code_testing_get_context(request, course, student):
     context = {}
     ctx = list()
     if not student:
@@ -46,12 +47,14 @@ def get_context(request, course, student):
     context['course'] = course
     return context
 
+
 def correct_next_link(next):
     if not next.endswith('/'):
         next += '/'
     if not next.startswith('/'):
         next = '/' + next
     return next
+
 
 @login_required
 def student_choose_course(request, next='/code/'):
@@ -60,6 +63,7 @@ def student_choose_course(request, next='/code/'):
     context = {'courses': list(courses),
                'next_link': correct_next_link(next)}
     return render(request, 'code_reception/assigned.html', context)
+
 
 @login_required
 def all_choose_course(request, next='/results/'):
@@ -85,7 +89,7 @@ def code_view(request, course=None, student_id=None):
     # pdb.set_trace()
     # print(tasks)
     if request.method == 'POST':
-        context = get_context(request, course, user)
+        context = code_testing_get_context(request, course, user)
         logging.info(request.POST)  # we can get the code here
 
         # after this we need to update context with the code to render it again. and with results.
@@ -93,12 +97,12 @@ def code_view(request, course=None, student_id=None):
         # 2) get response
         # 3) update context end return http request
         print(context)
-        return render(request, 'code_reception/code.html', context)
+        # return render(request, 'code_reception/code.html', context)
     else:
-        context = get_context(request, course, user)
+        context = code_testing_get_context(request, course, user)
         print(context)
         # pdb.set_trace()
-        return render(request, 'code_reception/code.html', context)
+    return render(request, 'code_reception/code.html', context)
 
 
 @login_required
@@ -106,9 +110,23 @@ def test_code(request):
     response_data = {}
     if request.method == 'POST':
         post = request.POST
+        if 'student_id' in post:
+            user = User.objects.all().get(id=post['student_id'])
+            if user != request.user:
+                logging.critical('Unauthorized test run')
+                messages.error(request, f'Недостаточно прав для запуска', extra_tags='danger')
+                return HttpResponse(status=403)
+        else:
+            user = request.user
+
         logging.info(post)  # code, lang, task_num
         question_id = post['task']
-        task = list(request.user.task_set.all())[int(question_id) - 1]  # django task object
+        task = list(user.task_set.all())[int(question_id) - 1]  # django task object
+        logging.critical('Task name being tested:', task.title)
+        # if request.user not in task.user_set.all():
+        #     logging.critical('Unauthorized test run')
+        #     messages.fail(request, f'Недостаточно прав для запуска', extra_tags='danger')
+        #     return HttpResponse(status=403)
 
         code_json = {
             'Type': 'CodeQuestion',
@@ -125,7 +143,8 @@ def test_code(request):
         response_data['result'] = result
         update_task_status(task, result, post['code'], request.user)
 
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    return HttpResponse(status=404)
 
 
 def about(request):
