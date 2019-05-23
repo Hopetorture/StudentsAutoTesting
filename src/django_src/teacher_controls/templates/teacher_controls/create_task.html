@@ -63,7 +63,7 @@
 
 
 <script>
-            var global_var = 0
+            var global_var = 1
             function fn(){
                 if (typeof fn.counter == 'undefined' ){
                     fn.counter = 1;
@@ -87,21 +87,28 @@
                 var title = $('input[name*=title]')[0].value
                 var description = $('textarea[name*=text]')[0].value
                 var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+                var add_to_courses = []
+                var courses_selected = $('select[name*=courses]').children("option:selected")
+                for (var i = 0; i < courses_selected.length; i++){
+                    add_to_courses.push(courses_selected[i].value)
+                }
                 var testcases = {
                 }
                 for (var i = 1; i <= global_var; i++){
                     testcases[i] = {
                         testcase_type: $(`#testcase_${i}_type_btn`)[0].innerHTML.replace('<span class="caret"></span>', '').trim(),
                         input: $(`#testcase_${i}_in`)[0].value,
-                        output: $(`#testcase_${i}_out`)[0].value
+                        output: $(`#testcase_${i}_out`)[0].value,
+
                     }
                 }
 
                 var input_dict = {
                     csrfmiddlewaretoken: CSRFtoken,
-                    tests: testcases,
-                    'title': title,
-                    'description': description
+                    tests_: JSON.stringify(testcases),
+                    title_data: title,
+                    description_data: description,
+                    add_to_courses_: JSON.stringify(add_to_courses)
 
                 };
                 console.log(input_dict)

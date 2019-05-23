@@ -66,6 +66,7 @@ class Course(models.Model):
     users = models.ManyToManyField(User)
     name = models.CharField(max_length=100, default='Новый курс по умолчанию')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_set', null=True)
+    questions_per_student = models.SmallIntegerField(default=1)
 
     def __str__(self):
         def name(s):

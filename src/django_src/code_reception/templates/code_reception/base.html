@@ -44,10 +44,11 @@
             {% for group in user.groups.all %}
               {% if group.name == 'Student' %}
                 <li><a href="{% url 'assigned' %}" style="font-size:20px;">Мои курсы</a></li>
+                <li><a href="/assigned/student_results/" style="font-size:20px;">Мои оценки</a></li>
               {% endif %}
               {% if group.name == 'Teacher' %}
                 <li><a href="{% url 'all_courses_view' %}" style="font-size:20px;">Результаты</a></li>
-                <li><a href="{% url 'all_courses_view' %}" style="font-size:20px;">Управление курсами</a></li>
+                <li><a href="/get_course/controls/" style="font-size:20px;">Управление курсами</a></li>
                 <li><a href="{% url 'create_course' %}" style="font-size:20px;">Создать курс</a></li>
                 <li><a href="{% url 'create_task' %}" style="font-size:20px;">Создать задачу</a></li>
               {% endif %}

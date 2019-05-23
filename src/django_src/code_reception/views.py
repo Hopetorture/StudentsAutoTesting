@@ -46,21 +46,28 @@ def get_context(request, course, student):
     context['course'] = course
     return context
 
+def correct_next_link(next):
+    if not next.endswith('/'):
+        next += '/'
+    if not next.startswith('/'):
+        next = '/' + next
+    return next
 
 @login_required
-def student_choose_course(request):
+def student_choose_course(request, next='/code/'):
     #request.user.course_set
     courses = Course.objects.filter(users=request.user)
     context = {'courses': list(courses),
-               'next_link': '/code/'}
+               'next_link': correct_next_link(next)}
     return render(request, 'code_reception/assigned.html', context)
 
 @login_required
-def all_choose_course(request):
+def all_choose_course(request, next='/results/'):
+    print('next:', next)
     #request.user.course_set
     courses = Course.objects.all()
     context = {'courses': list(courses),
-               'next_link': '/results/'}
+               'next_link': correct_next_link(next)}
     return render(request, 'code_reception/assigned.html', context)
 
 @login_required
@@ -210,3 +217,14 @@ def remove_student_from_group(request, student_id, group_name):
         return HttpResponse(status=200)
     except:
         return HttpResponse(status=500)
+
+@login_required
+def student_results(request, course):
+    print('URLHIT!')
+    course_obj = Course.objects.all().get(id=course)
+
+    return render(request, 'code_reception/student_results.html',
+                  {'course': course_obj.name,
+                   'course_id': course,
+                   'student_group': StudentGroup.objects.all().filter(students=request.user).first()
+                   })

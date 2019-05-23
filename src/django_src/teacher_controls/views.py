@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from .forms import CourseCreateForm, TaskCreateForm, CreateTaskModelForm
-from code_reception.models import Course
+from code_reception.models import Course, Task, TestCase
 
 # Create your views here.
 
@@ -43,17 +43,66 @@ def create_course(request):
     return render(request, 'teacher_controls/create_course.html', {'form': form})
 
 
+def check_testcases_valid(testcases):
+    for id, case in testcases.items():
+        if not case['input'] or not case['output']:
+            return False
+    return True
+
+
+def add_testcases_to_task(testcases, task):
+    for tc_id, testcase in testcases.items():
+        if testcase['testcase_type'] == 'Эталонные значения':
+            new_test = TestCase(stdin=testcase['input'],
+                                correct_answer=testcase['output'],
+                                task=task)
+            new_test.save()
+            task.testcase_set.add(new_test)
+
+
+
 @login_required
 def create_task(request):
+    courses_form = CreateTaskModelForm()
     if request.method == 'POST':
-        print(request.POST)
+        print(request.POST)  #  add_to_courses_[]
+        print(request.POST.get('add_to_courses_'))
         print('post')
         form = TaskCreateForm(request.POST)
-        if form.is_valid():
-            print(form.cleaned_data)
+        test_cases = json.loads(request.POST.get('tests_', '{}'))
+        title = request.POST.get('title_data')
+        description = request.POST.get('description_data')
+        print(test_cases)
+        if (test_cases and title and description and check_testcases_valid(test_cases)):
+            new_task = Task(title=title, text=description)
+            new_task.save()
+            add_testcases_to_task(test_cases, new_task)
+            print('valid forms')
+            messages.success(request, 'Задача успешно создана')
+        else:
+            print('not valid forms')
+            messages.error(request, 'Необходимо заполнить все обязательные поля', extra_tags='danger')
+        return render(request, 'teacher_controls/create_task.html', {'form': form, 'courses_form': courses_form})
+
     else:
         print('task')
         form = TaskCreateForm()
-        courses_form = CreateTaskModelForm()
+
         #return HttpResponse()
     return render(request, 'teacher_controls/create_task.html', {'form': form, 'courses_form': courses_form})
+
+@login_required
+def course_controls(request, course=None):
+    # 1) Разбиение задач на брекеты
+    # 2) Cписок задач
+    # 3) Добавление задач
+    # 4) Кнопка "выдать студентам задачи"
+    # 5) возможность изменить задачу?
+    print('URL HIT!')
+    course_obj = Course.objects.all().get(id=course)
+    return render(request, 'teacher_controls/course_controls.html', {'course_name': course_obj.name + str('''# 1) Разбиение задач на брекеты
+    # 2) Cписок задач
+    # 3) Добавление задач
+    # 3.1) Добавить/убрать группу
+    # 4) Кнопка "выдать группе задачи"
+    # 5) возможность изменить задачу?''')})

@@ -5,11 +5,11 @@ class CourseCreateForm(forms.ModelForm):
     class Meta:
         model = Course
         #task_choices = forms.MultipleChoiceField(choices=Task.objects.all(), widget=forms.CheckboxSelectMultiple)
-        fields = ('assigned_groups', 'tasks_pool', 'name',)
+        fields = ('assigned_groups', 'tasks_pool', 'name', 'questions_per_student')
         labels = {
             'assigned_groups': 'Добавить новый курс к группам',
             'tasks_pool': 'Выберите задания, которые будут входить в курс',
-            'name': 'Имя курса'
+            'name': 'Имя курса', 'questions_per_student': 'Задач для каждого студента'
         }
         widgets = {
             'tasks_pool': forms.CheckboxSelectMultiple(),
