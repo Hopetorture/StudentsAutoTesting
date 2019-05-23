@@ -5,19 +5,19 @@
 <script>
     console.log(123);
     window.onload = function(){
-    $('#div_id_tasks_pool').children()[1].id='checkbox_parent';
-    $('#checkbox_parent').wrap("<div style='height:120px; overflow-y: scroll;' class='anyClass'></div>")
+        $('#div_id_tasks_pool').children()[1].id='checkbox_parent';
+        $('#checkbox_parent').wrap("<div style='height:120px; overflow-y: scroll;' class='anyClass'></div>")
 
-    $('#div_id_assigned_groups').children()[1].id='group_select';
-    $('#group_select').wrap("<div style='height:90px; overflow-y: scroll;' class='anyClass'></div>")
+        $('#div_id_assigned_groups').children()[1].id='group_select';
+        $('#group_select').wrap("<div style='height:90px; overflow-y: scroll;' class='anyClass'></div>")
 
-    $('.textinput').attr('value', '')
-    console.log(321);
+        $('.textinput').attr('value', '')
+        console.log(321);
     }
 </script>
 <h2>Новый курс</h2>
-    <form method="POST" class="post-form">{% csrf_token %}
-        {{ form| crispy}}
-        <button type="submit" class="save btn btn-default">Сохранить</button>
-    </form>
+<form method="POST" class="post-form">{% csrf_token %}
+    {{ form| crispy}}
+    <button type="submit" class="save btn btn-default">Сохранить</button>
+</form>
 {% endblock content %}

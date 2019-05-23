@@ -175,7 +175,10 @@ def update_task_status(task, results, code, user):
 def generate_table(request):
     group = request.POST['group']
     course = Course.objects.get(id=request.POST['course'])
-    students = StudentGroup.objects.all().get(group_name=group).students.all().order_by('last_name', 'first_name')
+    if request.POST.get('single_student', None):
+        students = [StudentGroup.objects.all().get(group_name=group).students.get(id=request.POST.get('single_student'))]
+    else:
+        students = StudentGroup.objects.all().get(group_name=group).students.all().order_by('last_name', 'first_name')
     response = []
     max_tasks = 0
     for i, student in enumerate(students):
@@ -220,11 +223,11 @@ def remove_student_from_group(request, student_id, group_name):
 
 @login_required
 def student_results(request, course):
-    print('URLHIT!')
     course_obj = Course.objects.all().get(id=course)
 
     return render(request, 'code_reception/student_results.html',
                   {'course': course_obj.name,
                    'course_id': course,
-                   'student_group': StudentGroup.objects.all().filter(students=request.user).first()
+                   'student_group': StudentGroup.objects.all().filter(students=request.user).first(),
+                   'student': request.user.id
                    })

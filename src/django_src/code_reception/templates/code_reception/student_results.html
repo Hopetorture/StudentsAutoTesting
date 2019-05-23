@@ -3,54 +3,51 @@
 <!--<form method="POST" enctype="multipart/form-data">-->
 {% csrf_token %}
 <script>
-    $(document).ready(function() {
-        $('.js-example-basic-single').select2();
-        }
+    var on_load_fn = function(){
 
-      var group_name = $('#group_dropdown').select2('data')[0]['text']
-
-      var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
-      var input_dict = {
+        var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+        var input_dict = {
             group: "{{student_group}}",
             csrfmiddlewaretoken: CSRFtoken,
-            course: "{{course_id}}"
-       }
+            course: "{{course_id}}",
+            single_student: "{{student}}"
+        };
 
-      var cb = function(data){
-      console.log(data);
-      var table = data['table'];
-      var rows = data['rows'];
-      for (var i = 1; i <= rows; i++){
-          document.getElementById("columns").innerHTML += `<th scope="col">Задача ${i}</th>`;
-      }
+        var cb = function(data){
+            console.log(data);
+            var table = data['table'];
+            var rows = data['rows'];
+            for (var i = 1; i <= rows; i++){
+                document.getElementById("columns").innerHTML += `<th scope="col">Задача ${i}</th>`;
+            }
 
-      var student_ids = [];
-      for(var i = 0; i < table.length; i++){
-          student = table[i];
-          var total_tasks = student['results'].length;
-          var success_tasks = 0;
-          var fail_tasks = 0;
-          var no_run_tasks = 0;
-          var res_status = " "
-          for (var j = 0; j < total_tasks; j++){
-              res_list = student['results'][j];
-              if (res_list === "Success") {
-                  res_status += `<td><font size='6' color='#009900'>&#10003;</font></td>`;
-                  success_tasks += 1;
-              }
-              else if (res_list === "Fail") {
-                  res_status += "<td><font size='6' color='#b30000'>-</font></td>";
-                  fail_tasks += 1;
-              }
-              else {
-                  res_status += "<td><font size='6' color='black'>.</font></td>"
-                  no_run_tasks += 1;
-              }
+            var student_ids = [];
+            for(var i = 0; i < table.length; i++){
+                student = table[i];
+                var total_tasks = student['results'].length;
+                var success_tasks = 0;
+                var fail_tasks = 0;
+                var no_run_tasks = 0;
+                var res_status = " "
+                for (var j = 0; j < total_tasks; j++){
+                    res_list = student['results'][j];
+                        if (res_list === "Success") {
+                            res_status += `<td><font size='6' color='#009900'>&#10003;</font></td>`;
+                            success_tasks += 1;
+                        }
+                        else if (res_list === "Fail") {
+                            res_status += "<td><font size='6' color='#b30000'>-</font></td>";
+                            fail_tasks += 1;
+                        }
+                        else {
+                            res_status += "<td><font size='6' color='black'>.</font></td>"
+                            no_run_tasks += 1;
+                        }
 
-          }
-          var success_percents = Math.round((total_tasks - (fail_tasks + no_run_tasks)) / total_tasks * 100)
-          console.log(res_status);
-          document.getElementById("mtable").innerHTML += `<tr>
+                }
+            var success_percents = Math.round((total_tasks - (fail_tasks + no_run_tasks)) / total_tasks * 100)
+            console.log(res_status);
+            document.getElementById("mtable").innerHTML += `<tr>
                                                             <th scope='row'>${student['idx']}</th>
                                                             <td><a id=${student['db_user_id']} title=${student['email']} href="/code/${student['course_id']}/${student['db_user_id']}">${student['name']}</a></td>
                                                             <td>
@@ -61,112 +58,88 @@
                                                             </td>
                                                             ${res_status}
                                                           </tr>`;
+            var id_ = `${student['db_user_id']}`;
+            console.log(id_);
+            student_ids.push(id_);
+            } // end for
+        }; // end CB
+    $.post("/generate_table/", input_dict, cb)
 
-          var id_ = `${student['db_user_id']}`;
-          console.log(id_);
-          student_ids.push(id_);
-      }
-      for (const id_ of student_ids)
-      {
-          //document.getElementById(id_).addEventListener('contextmenu', fn, false);
-          //document.addEventListener('click', function(){$("#context-menu").removeClass("show").hide();}, false);
-      }
-  };
-  $.post("generate_table", input_dict, cb);
+    };
 
-    );
+    $(document).ready(function() {
+        on_load_fn()
 
-$('#group_dropdown').on('select2:select', function (e) {
+    })
 
-});
+
+
+
+
 </script>
-<menu id="ctxMenu">
-    <menu title="File">
-        <menu title="Save"></menu>
-        <menu title="Save As"></menu>
-        <menu title="Open"></menu>
-    </menu>
-    <menu title="Edit">
-        <menu title="Cut"></menu>
-        <menu title="Copy"></menu>
-        <menu title="Paste"></menu>
-    </menu>
-</menu>
-<!--<div class="list-group">-->
-  <!--{% for course in courses %}-->
-      <!--<button onclick="window.location='/code/{{course.id}}'" type="button"-->
-              <!--class="list-group-item list-group-item-action">-->
-        <!--{{course.name}}-->
-      <!--</button>-->
-  <!--{% endfor %}-->
-  <!--&lt;!&ndash;<button type="button" class="list-group-item list-group-item-action active">&ndash;&gt;-->
-    <!--&lt;!&ndash;Cras justo odio&ndash;&gt;-->
-  <!--&lt;!&ndash;</button>&ndash;&gt;-->
-  <!--&lt;!&ndash;<button onclick="window.location='/code/'" type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>&ndash;&gt;-->
-<!--</div>-->
-<center>
-  <h4>{{course_name}}</h4>
-  <h4>Результаты студентов</h4>
-<select id="group_dropdown"class="js-example-placeholder-single" style="width: 80%" name="state">
-  <option></option>
-  {% for group in groups %}
-    <option value="{{group.group_name}}">{{group.group_name}}</option>
-  {% endfor %}
-  <!--<option value="AL">ИДБ-15</option>-->
-  <!--<option value="WY">БМФ-14</option>-->
-</select>
 
-<table id="_table_" class="table">
-  <caption>Успеваемость</caption>
-  <thead id="thead">
-    <tr id="columns">
-      <th scope="col">#</th>
-      <th scope="col">Студент</th>
-      <th scope="col">Прогресс</th>
-      <!--<th scope="col">Last</th>-->
-      <!--<th scope="col">Handle</th>-->
-    </tr>
-  </thead>
-  <tbody id="mtable">
-    <!--<tr>-->
-      <!--<th scope="row">1</th>-->
-      <!--<td>Mark</td>-->
-      <!--<td>Otto</td>-->
-      <!--<td>@mdo</td>-->
-    <!--</tr>-->
-    <!--<tr>-->
-      <!--<th scope="row">2</th>-->
-      <!--<td>Jacob</td>-->
-      <!--<td>Thornton</td>-->
-      <!--<td>@fat</td>-->
-    <!--</tr>-->
-    <!--<tr>-->
-      <!--<th scope="row">3</th>-->
-      <!--<td>Larry</td>-->
-      <!--<td>the Bird</td>-->
-      <!--<td>@twitter</td>-->
-    <!--</tr>-->
-  </tbody>
-</table>
+<center>
+    <h4>Оценки по курсу {{course}}</h4>
+<!--    <select id="group_dropdown"class="js-example-placeholder-single" style="width: 80%" name="state">-->
+<!--        <option></option>-->
+<!--        {% for group in groups %}-->
+<!--        <option value="{{group.group_name}}">{{group.group_name}}</option>-->
+<!--        {% endfor %}-->
+<!--        &lt;!&ndash;<option value="AL">ИДБ-15</option>&ndash;&gt;-->
+<!--        &lt;!&ndash;<option value="WY">БМФ-14</option>&ndash;&gt;-->
+<!--    </select>-->
+
+    <table id="_table_" class="table">
+        <caption>Успеваемость</caption>
+        <thead id="thead">
+        <tr id="columns">
+            <th scope="col">#</th>
+            <th scope="col">Студент</th>
+            <th scope="col">Прогресс</th>
+            <!--<th scope="col">Last</th>-->
+            <!--<th scope="col">Handle</th>-->
+        </tr>
+        </thead>
+        <tbody id="mtable">
+        <!--<tr>-->
+        <!--<th scope="row">1</th>-->
+        <!--<td>Mark</td>-->
+        <!--<td>Otto</td>-->
+        <!--<td>@mdo</td>-->
+        <!--</tr>-->
+        <!--<tr>-->
+        <!--<th scope="row">2</th>-->
+        <!--<td>Jacob</td>-->
+        <!--<td>Thornton</td>-->
+        <!--<td>@fat</td>-->
+        <!--</tr>-->
+        <!--<tr>-->
+        <!--<th scope="row">3</th>-->
+        <!--<td>Larry</td>-->
+        <!--<td>the Bird</td>-->
+        <!--<td>@twitter</td>-->
+        <!--</tr>-->
+        </tbody>
+    </table>
 
 </center>
 <script>
     $('#group_dropdown').on('select2:select', function (e) {
 
 
-});
+    });
 
 
 </script>
 <div class="dropdown-menu dropdown-menu-sm" id="context-menu">
-          <a class="dropdown-item" href="#" id="erase_link" onclick="">Удалить студента из группы</a>
-          <!--<button  onclick="sendTask()">Протестировать</button>-->
-          <!--<a class="dropdown-item" href="#">Another action</a>-->
-          <!--<a class="dropdown-item" href="#">Something else here</a>-->
+    <a class="dropdown-item" href="#" id="erase_link" onclick="">Удалить студента из группы</a>
+    <!--<button  onclick="sendTask()">Протестировать</button>-->
+    <!--<a class="dropdown-item" href="#">Another action</a>-->
+    <!--<a class="dropdown-item" href="#">Something else here</a>-->
 </div>
 <script>
-function update_table(){
-    document.getElementById("columns").innerHTML += '<th scope="col">First</th>';
-}
+    function update_table(){
+        document.getElementById("columns").innerHTML += '<th scope="col">First</th>';
+    }
 </script>
 {% endblock content %}

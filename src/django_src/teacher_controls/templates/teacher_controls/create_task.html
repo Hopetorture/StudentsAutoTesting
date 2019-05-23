@@ -3,121 +3,121 @@
 {% load crispy_forms_tags %}
 <!--<form method="POST" enctype="multipart/form-data">-->
 <h2>Новая задача</h2>
-    <form method="POST" class="post-form">{% csrf_token %}
-        {{ form| crispy}}
-        {{courses_form | crispy}}
+<form method="POST" class="post-form">{% csrf_token %}
+    {{ form| crispy}}
+    {{courses_form | crispy}}
 
 
 
-<label>Тестовые сценарии*</label>
-<div id="testcases">
-    <!--<hr id="line_" style="height:1px;border:none;color:#333;background-color:grey" />-->
-    <hr/>
-    <div id="testcase_1">
-    <p></p>
-     <div class="dropdown">
-        <button id="testcase_1_type_btn"class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            Эталонные значения
-            <span class="caret"></span>
-        </button>
+    <label>Тестовые сценарии*</label>
+    <div id="testcases">
+        <!--<hr id="line_" style="height:1px;border:none;color:#333;background-color:grey" />-->
+        <hr/>
+        <div id="testcase_1">
+            <p></p>
+            <div class="dropdown">
+                <button id="testcase_1_type_btn"class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Эталонные значения
+                    <span class="caret"></span>
+                </button>
 
-        <ul   class="dropdown-menu" aria-labelledby="dropdownMenu1" id="testcase_1_type">
-            <li><a href="#">Эталонные значения</a></li>
-            <li><a href="#">Python-генераторы</a></li>
-        </ul>
-    </div>
-    <p></p>
-        <div class="row">
-  <div class="col-lg-6">
-    <div class="input-group">
+                <ul   class="dropdown-menu" aria-labelledby="dropdownMenu1" id="testcase_1_type">
+                    <li><a href="#">Эталонные значения</a></li>
+                    <li><a href="#">Python-генераторы</a></li>
+                </ul>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group">
 
       <span class="input-group-addon">
         <!--<input type="checkbox" aria-label="...">-->
           <label>На вход программе</label>
       </span>
-      <input id="testcase_1_in" type="text" class="form-control" aria-label="...">
-    </div><!-- /input-group -->
-  </div><!-- /.col-lg-6 -->
-  <div class="col-lg-6">
-    <div class="input-group">
+                        <input id="testcase_1_in" type="text" class="form-control" aria-label="...">
+                    </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+                <div class="col-lg-6">
+                    <div class="input-group">
       <span class="input-group-addon">
         <label>Правильный ответ</label>
       </span>
-      <input id="testcase_1_out" type="text" class="form-control" aria-label="...">
-    </div><!-- /input-group -->
-  </div><!-- /.col-lg-6 -->
-</div><!-- /.row -->
+                        <input id="testcase_1_out" type="text" class="form-control" aria-label="...">
+                    </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+            </div><!-- /.row -->
         </div>
-</div> <!--  end of widget -->
+    </div> <!--  end of widget -->
 
-<p></p>
+    <p></p>
 
-        <!--<button class="add_field_button btn btn-success btn-md"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>-->
+    <!--<button class="add_field_button btn btn-success btn-md"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>-->
 
-        <!--<p></p>-->
+    <!--<p></p>-->
 
-    </form>
+</form>
 <button class="add_field_button btn btn-success" onclick="fn()"><label class="glyphicon glyphicon-plus"></label></button>
 <br></br>
 <button onclick="send()" class="save btn btn-default">Сохранить</button>
 
 
 <script>
-            var global_var = 1
-            function fn(){
-                if (typeof fn.counter == 'undefined' ){
-                    fn.counter = 1;
-                }
-                fn.counter ++;
-                if (typeof fn.html == 'undefined' ){
-                    fn.html = $("#testcases").html();
-                }
-                console.log(fn.counter)
-                html = fn.html
-                html = html.replace(`testcase_1`, `testcase_${fn.counter}`) // testcase_1_type
-                html = html.replace(`testcase_1_type`, `testcase_${fn.counter}_type`)
-                html = html.replace(`testcase_1_type_btn`, `testcase_${fn.counter}_type_btn`)
-                html = html.replace(`testcase_1_in`, `testcase_${fn.counter}_in`)
-                html = html.replace(`testcase_1_out`, `testcase_${fn.counter}_out`)
-                $("#testcases").append(html);
-                global_var = fn.counter;
+    var global_var = 1
+    function fn(){
+        if (typeof fn.counter == 'undefined' ){
+            fn.counter = 1;
+        }
+        fn.counter ++;
+        if (typeof fn.html == 'undefined' ){
+            fn.html = $("#testcases").html();
+        }
+        console.log(fn.counter)
+        html = fn.html
+        html = html.replace(`testcase_1`, `testcase_${fn.counter}`) // testcase_1_type
+        html = html.replace(`testcase_1_type`, `testcase_${fn.counter}_type`)
+        html = html.replace(`testcase_1_type_btn`, `testcase_${fn.counter}_type_btn`)
+        html = html.replace(`testcase_1_in`, `testcase_${fn.counter}_in`)
+        html = html.replace(`testcase_1_out`, `testcase_${fn.counter}_out`)
+        $("#testcases").append(html);
+        global_var = fn.counter;
+
+    }
+    function send(){
+        var title = $('input[name*=title]')[0].value
+        var description = $('textarea[name*=text]')[0].value
+        var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+        var add_to_courses = []
+        var courses_selected = $('select[name*=courses]').children("option:selected")
+        for (var i = 0; i < courses_selected.length; i++){
+            add_to_courses.push(courses_selected[i].value)
+        }
+        var testcases = {
+        }
+        for (var i = 1; i <= global_var; i++){
+            testcases[i] = {
+                testcase_type: $(`#testcase_${i}_type_btn`)[0].innerHTML.replace('<span class="caret"></span>', '').trim(),
+                input: $(`#testcase_${i}_in`)[0].value,
+                output: $(`#testcase_${i}_out`)[0].value,
 
             }
-            function send(){
-                var title = $('input[name*=title]')[0].value
-                var description = $('textarea[name*=text]')[0].value
-                var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
-                var add_to_courses = []
-                var courses_selected = $('select[name*=courses]').children("option:selected")
-                for (var i = 0; i < courses_selected.length; i++){
-                    add_to_courses.push(courses_selected[i].value)
-                }
-                var testcases = {
-                }
-                for (var i = 1; i <= global_var; i++){
-                    testcases[i] = {
-                        testcase_type: $(`#testcase_${i}_type_btn`)[0].innerHTML.replace('<span class="caret"></span>', '').trim(),
-                        input: $(`#testcase_${i}_in`)[0].value,
-                        output: $(`#testcase_${i}_out`)[0].value,
+        }
 
-                    }
-                }
+        var input_dict = {
+            csrfmiddlewaretoken: CSRFtoken,
+            tests_: JSON.stringify(testcases),
+            title_data: title,
+            description_data: description,
+            add_to_courses_: JSON.stringify(add_to_courses)
 
-                var input_dict = {
-                    csrfmiddlewaretoken: CSRFtoken,
-                    tests_: JSON.stringify(testcases),
-                    title_data: title,
-                    description_data: description,
-                    add_to_courses_: JSON.stringify(add_to_courses)
+        };
+        console.log(input_dict)
+        $.post("", input_dict);
 
-                };
-                console.log(input_dict)
-                $.post("", input_dict);
-
-            }
-            $(".dropdown-menu li a").click(function(){
-            $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-            $(this).parents(".dropdown").find('.btn').val($(this).data('value'));});
+    }
+    $(".dropdown-menu li a").click(function(){
+        $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+        $(this).parents(".dropdown").find('.btn').val($(this).data('value'));});
 </script>
 
 {% endblock content %}

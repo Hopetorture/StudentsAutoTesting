@@ -15,70 +15,70 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <title>Title2</title>
 </head>
 <body>
 
 <nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <!--<a class="navbar-brand" href="/">МЭИ Тесты</a>-->
-    </div>
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <!--<a class="navbar-brand" href="/">МЭИ Тесты</a>-->
+        </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
 
-            {% for group in user.groups.all %}
-              {% if group.name == 'Student' %}
+                {% for group in user.groups.all %}
+                {% if group.name == 'Student' %}
                 <li><a href="{% url 'assigned' %}" style="font-size:20px;">Мои курсы</a></li>
                 <li><a href="/assigned/student_results/" style="font-size:20px;">Мои оценки</a></li>
-              {% endif %}
-              {% if group.name == 'Teacher' %}
+                {% endif %}
+                {% if group.name == 'Teacher' %}
                 <li><a href="{% url 'all_courses_view' %}" style="font-size:20px;">Результаты</a></li>
                 <li><a href="/get_course/controls/" style="font-size:20px;">Управление курсами</a></li>
                 <li><a href="{% url 'create_course' %}" style="font-size:20px;">Создать курс</a></li>
                 <li><a href="{% url 'create_task' %}" style="font-size:20px;">Создать задачу</a></li>
-              {% endif %}
-            {% endfor %}
+                {% endif %}
+                {% endfor %}
 
 
-      </ul>
-      <form class="navbar-form navbar-left">
-      </form>
-      <ul class="nav navbar-nav navbar-right">
+            </ul>
+            <form class="navbar-form navbar-left">
+            </form>
+            <ul class="nav navbar-nav navbar-right">
 
-        {% if user.is_authenticated %}
-            <li><a>{{user.get_full_name|default:user.username}}</a></li>
-            <li><a href="{% url 'profile' %}">Профиль</a></li>
-            <li><a href="{% url 'logout' %}">Выход</a></li>
-        {% else %}
-            <li><a href="{% url 'login' %}">Вход</a></li>
-            <li><a href="{% url 'register' %}">Регистрация</a></li>
-        {% endif %}
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+                {% if user.is_authenticated %}
+                <li><a>{{user.get_full_name|default:user.username}}</a></li>
+                <li><a href="{% url 'profile' %}">Профиль</a></li>
+                <li><a href="{% url 'logout' %}">Выход</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Вход</a></li>
+                <li><a href="{% url 'register' %}">Регистрация</a></li>
+                {% endif %}
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
 </nav>
 <div class="container">
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
     {% endif %}
     {% block content %}{% endblock %}
 </div>

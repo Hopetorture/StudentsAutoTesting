@@ -1,7 +1,7 @@
 {% extends "code_reception/base.html"%}
 {% block content %}
 <!--<form method="POST" enctype="multipart/form-data">-->
-    {% csrf_token %}
+{% csrf_token %}
 <h4><center>{{course.name}}</center></h4>
 <script>
     function get_correct_testcase_text(text){
@@ -23,183 +23,183 @@
     }
 </script>
 <div id="task_tabs" class="container">
-   <div class="tabbable"> <!-- Only required for left/right tabs -->
-       <ul class="nav nav-tabs">
+    <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
             {% for task in tasks %}
-                {% if forloop.counter == 1 %}
-                    <li class="active"><a href="#tab1" data-toggle="tab">Задача #1  </a></li>
-                {% else %}
-                    <li><a href="#tab{{forloop.counter}}" data-toggle="tab">Задача #{{forloop.counter}}  </a></li>
-                {% endif %}
+            {% if forloop.counter == 1 %}
+            <li class="active"><a href="#tab1" data-toggle="tab">Задача #1  </a></li>
+            {% else %}
+            <li><a href="#tab{{forloop.counter}}" data-toggle="tab">Задача #{{forloop.counter}}  </a></li>
+            {% endif %}
             {% endfor %}
-       </ul>
-       <div class="tab-content">
+        </ul>
+        <div class="tab-content">
             {% for task in tasks %}
-                <div {% if forloop.counter == 1 %} class="tab-pane active" {% else %} class="tab-pane" {% endif %} id="tab{{forloop.counter}}">
-                    <div class="panel panel-default">
+            <div {% if forloop.counter == 1 %} class="tab-pane active" {% else %} class="tab-pane" {% endif %} id="tab{{forloop.counter}}">
+                <div class="panel panel-default">
 
-                        <div class="panel-heading">
-                            <h3 id="Title" class="panel-title">{{task.test.title}}</h3>
-                        </div>
-                        <div class="panel-body">
-                            {{task.test.text}}
-                        </div>
-                        </div>
-                            <!--<div class="panel panel-default">-->
-                                <!--<div class="panel-body">-->
-                                    <!--Ограничение по времени выполнения: {{task.Timeout}} сек.-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--<textarea id="txtarea" spellcheck="false" placeholder="Введите код программы"></textarea>-->
-
-                        <!--Dropdown-->
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                C++14
-                                <span class="caret"></span>
-                            </button>
-                            <ul   class="dropdown-menu" aria-labelledby="dropdownMenu1" id="toolset">
-                            <li><a href="#">C++14</a></li>
-                            <li><a href="#">C++98</a></li>
-                            </ul>
-                            <script>
-                                $(".dropdown-menu li a").click(function(){
-                                $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-                                $(this).parents(".dropdown").find('.btn').val($(this).data('value'));});
-                            </script>
-                        <label id="status">
-                            Статус: <font id="status_color" color="{{task.result.status_color}}">
-                            {% if task.result.solve_status == 'Success' %}
-                                Успех
-                            {% elif task.result.solve_status == 'Fail'%}
-                                Ошибка
-                            {% elif task.result.solve_status == 'Not compiled'%}
-                               Ошибка компиляции
-                            {% elif task.result.solve_status == 'no run'%}
-                                Не протестировано
-                            {% else %}
-                                {{task.result.solve_status}}
-                            {% endif %}
-                        </font>
-                        </label>
-                        </div>
-
-
-
-                            <div class="form-group">
-                                <label for="txtarea">Код программы </label>
-                                <textarea name='code' class="form-control" id="txtarea" rows="13">{{task.result.submitted_code}}</textarea>
-                                <!--<script>-->
-                                    <!--&lt;!&ndash;function expandTextarea(id) {&ndash;&gt;-->
-                                    <!--&lt;!&ndash;document.getElementById(id).addEventListener('keyup', function() {&ndash;&gt;-->
-                                    <!--&lt;!&ndash;this.style.overflow = 'hidden';&ndash;&gt;-->
-                                    <!--&lt;!&ndash;this.style.height = 0;&ndash;&gt;-->
-                                    <!--&lt;!&ndash;this.style.height = this.scrollHeight + 'px';}, false);}&ndash;&gt;-->
-                                    <!--&lt;!&ndash;expandTextarea('txtarea');&ndash;&gt;-->
-                                <!--</script>-->
-                            </div>
-                            <script>
-                                function sendTask(){
-                                    var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
-                                    var code_src = $('#txtarea').val();
-                                    var toolset = $('#dropdownMenu1').text().trim();
-
-                                    var task_num = $('.active')[1].id;
-                                    task_num = task_num[task_num.length - 1];
-
-                                    input_dict = {
-                                    code: code_src,
-                                    lang: toolset,
-                                    task: task_num,
-                                    csrfmiddlewaretoken: CSRFtoken
-                                    }
-
-                                    var cb = function(data){
-                                        //console.log(data['result']);
-                                        var res = data['result'];
-                                        $('#status_color').text(get_correct_testcase_text(res['status']));
-                                        $('#status_color').attr('color', res['color']);
-                                        $('#Compile_error').text(res['compile_result']);
-                                        testcases = res['testcase_status'];
-                                        console.log(res)
-                                        if (testcases.length == 0)
-                                        {
-                                            console.log("len = 0");
-                                            try{
-                                                for(var i = 0; i < 30; i++)
-                                                {
-                                                    console.log("for")
-                                                    var next_idx =  String(i + 1);
-                                                    $('#testcase' + next_idx)[0].style.visibility = "hidden";
-                                                }
-                                            }
-                                            catch(err){
-                                                console.log("catch");
-                                                console.log(err);
-                                            }
-                                        }
-                                        for(var i = 0; i < testcases.length; i++){
-                                            var idx = String(i)//i.toString(10);
-                                            var next_idx =  String(i + 1);
-                                            console.log(idx);
-                                            status = testcases[i]['status'];
-                                            class_color = "list-group-item list-group-item-danger"
-                                            if(status == "Success"){
-                                                class_color = "list-group-item list-group-item-success"
-                                            }
-                                            else if (status == "Not compiled"){
-                                                class_color = "list-group-item list-group-item-warning"
-                                            }
-                                            var txt = "Тест #" + next_idx + " " + get_correct_testcase_text(status);
-                                            console.log(txt);
-
-                                            $('#testcase' + next_idx)[0].style.visibility = "visible";
-                                            $('#testcase' + next_idx).text(txt);
-                                            $('#testcase' + next_idx).attr('class', class_color)
-                                            console.log(status);
-                                            if (status == "Not compiled")
-                                            {
-                                                console.log("if worked");
-                                                //$('#testcase' + next_idx).text("Ошибка комплияции");
-                                                //$('#testcase' + next_idx).attr('class', "list-group-item list-group-item-warning");
-                                                //$('#testcase' + next_idx)[0].style.visibility = "hidden";
-                                            }
-
-                                        }
-                                    }
-                                    $.post("test", input_dict, cb);
-
-                                }
-                            </script>
-                            <button id="submit_btn"  class="btn btn-success" onclick="sendTask()">Протестировать</button><!--type="submit"-->
-                            <!--$('#submit_btn').click(function(){-->
-                                <!--alert('smthing')-->
-                            <!--} );-->
-
-                        <ul class="list-group" id="results">
-                            {% for result in task.result.tests_success %}
-                                {% if result == 'True' %}
-                                    <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-success">Тест #{{forloop.counter}} Успех</li>
-                                {% else %}
-                                    <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-danger">Тест #{{forloop.counter}} Ошибка</li>
-                                {% endif %}
-                            {% endfor %}
-                          <!--<li class="list-group-item">Dapibus ac facilisis in</li>-->
-                          <!--<li class="list-group-item list-group-item-primary">This is a primary list group item</li>-->
-                          <!--<li class="list-group-item list-group-item-secondary">This is a secondary list group item</li>-->
-
-                          <!---->
-                          <!--<li class="list-group-item list-group-item-warning">This is a warning list group item</li>-->
-                          <!--<li class="list-group-item list-group-item-info">This is a info list group item</li>-->
-                          <!--<li class="list-group-item list-group-item-light">This is a light list group item</li>-->
-                          <!--<li class="list-group-item list-group-itqem-dark">This is a dark list group item</li>-->
-                        </ul>
-                        <label id="Compile_error">
-                        </label>
+                    <div class="panel-heading">
+                        <h3 id="Title" class="panel-title">{{task.test.title}}</h3>
+                    </div>
+                    <div class="panel-body">
+                        {{task.test.text}}
+                    </div>
                 </div>
+                <!--<div class="panel panel-default">-->
+                <!--<div class="panel-body">-->
+                <!--Ограничение по времени выполнения: {{task.Timeout}} сек.-->
+                <!--</div>-->
+                <!--</div>-->
+                <!--<textarea id="txtarea" spellcheck="false" placeholder="Введите код программы"></textarea>-->
+
+                <!--Dropdown-->
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        C++14
+                        <span class="caret"></span>
+                    </button>
+                    <ul   class="dropdown-menu" aria-labelledby="dropdownMenu1" id="toolset">
+                        <li><a href="#">C++14</a></li>
+                        <li><a href="#">C++98</a></li>
+                    </ul>
+                    <script>
+                        $(".dropdown-menu li a").click(function(){
+                            $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+                            $(this).parents(".dropdown").find('.btn').val($(this).data('value'));});
+                    </script>
+                    <label id="status">
+                        Статус: <font id="status_color" color="{{task.result.status_color}}">
+                        {% if task.result.solve_status == 'Success' %}
+                        Успех
+                        {% elif task.result.solve_status == 'Fail'%}
+                        Ошибка
+                        {% elif task.result.solve_status == 'Not compiled'%}
+                        Ошибка компиляции
+                        {% elif task.result.solve_status == 'no run'%}
+                        Не протестировано
+                        {% else %}
+                        {{task.result.solve_status}}
+                        {% endif %}
+                    </font>
+                    </label>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="txtarea">Код программы </label>
+                    <textarea name='code' class="form-control" id="txtarea" rows="13">{{task.result.submitted_code}}</textarea>
+                    <!--<script>-->
+                    <!--&lt;!&ndash;function expandTextarea(id) {&ndash;&gt;-->
+                    <!--&lt;!&ndash;document.getElementById(id).addEventListener('keyup', function() {&ndash;&gt;-->
+                    <!--&lt;!&ndash;this.style.overflow = 'hidden';&ndash;&gt;-->
+                    <!--&lt;!&ndash;this.style.height = 0;&ndash;&gt;-->
+                    <!--&lt;!&ndash;this.style.height = this.scrollHeight + 'px';}, false);}&ndash;&gt;-->
+                    <!--&lt;!&ndash;expandTextarea('txtarea');&ndash;&gt;-->
+                    <!--</script>-->
+                </div>
+                <script>
+                    function sendTask(){
+                        var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+                        var code_src = $('#txtarea').val();
+                        var toolset = $('#dropdownMenu1').text().trim();
+
+                        var task_num = $('.active')[1].id;
+                        task_num = task_num[task_num.length - 1];
+
+                        input_dict = {
+                            code: code_src,
+                            lang: toolset,
+                            task: task_num,
+                            csrfmiddlewaretoken: CSRFtoken
+                        }
+
+                        var cb = function(data){
+                            //console.log(data['result']);
+                            var res = data['result'];
+                            $('#status_color').text(get_correct_testcase_text(res['status']));
+                            $('#status_color').attr('color', res['color']);
+                            $('#Compile_error').text(res['compile_result']);
+                            testcases = res['testcase_status'];
+                            console.log(res)
+                            if (testcases.length == 0)
+                            {
+                                console.log("len = 0");
+                                try{
+                                    for(var i = 0; i < 30; i++)
+                                    {
+                                        console.log("for")
+                                        var next_idx =  String(i + 1);
+                                        $('#testcase' + next_idx)[0].style.visibility = "hidden";
+                                    }
+                                }
+                                catch(err){
+                                    console.log("catch");
+                                    console.log(err);
+                                }
+                            }
+                            for(var i = 0; i < testcases.length; i++){
+                                var idx = String(i)//i.toString(10);
+                                var next_idx =  String(i + 1);
+                                console.log(idx);
+                                status = testcases[i]['status'];
+                                class_color = "list-group-item list-group-item-danger"
+                                if(status == "Success"){
+                                    class_color = "list-group-item list-group-item-success"
+                                }
+                                else if (status == "Not compiled"){
+                                    class_color = "list-group-item list-group-item-warning"
+                                }
+                                var txt = "Тест #" + next_idx + " " + get_correct_testcase_text(status);
+                                console.log(txt);
+
+                                $('#testcase' + next_idx)[0].style.visibility = "visible";
+                                $('#testcase' + next_idx).text(txt);
+                                $('#testcase' + next_idx).attr('class', class_color)
+                                console.log(status);
+                                if (status == "Not compiled")
+                                {
+                                    console.log("if worked");
+                                    //$('#testcase' + next_idx).text("Ошибка комплияции");
+                                    //$('#testcase' + next_idx).attr('class', "list-group-item list-group-item-warning");
+                                    //$('#testcase' + next_idx)[0].style.visibility = "hidden";
+                                }
+
+                            }
+                        }
+                        $.post("test", input_dict, cb);
+
+                    }
+                </script>
+                <button id="submit_btn"  class="btn btn-success" onclick="sendTask()">Протестировать</button><!--type="submit"-->
+                <!--$('#submit_btn').click(function(){-->
+                <!--alert('smthing')-->
+                <!--} );-->
+
+                <ul class="list-group" id="results">
+                    {% for result in task.result.tests_success %}
+                    {% if result == 'True' %}
+                    <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-success">Тест #{{forloop.counter}} Успех</li>
+                    {% else %}
+                    <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-danger">Тест #{{forloop.counter}} Ошибка</li>
+                    {% endif %}
+                    {% endfor %}
+                    <!--<li class="list-group-item">Dapibus ac facilisis in</li>-->
+                    <!--<li class="list-group-item list-group-item-primary">This is a primary list group item</li>-->
+                    <!--<li class="list-group-item list-group-item-secondary">This is a secondary list group item</li>-->
+
+                    <!---->
+                    <!--<li class="list-group-item list-group-item-warning">This is a warning list group item</li>-->
+                    <!--<li class="list-group-item list-group-item-info">This is a info list group item</li>-->
+                    <!--<li class="list-group-item list-group-item-light">This is a light list group item</li>-->
+                    <!--<li class="list-group-item list-group-itqem-dark">This is a dark list group item</li>-->
+                </ul>
+                <label id="Compile_error">
+                </label>
+            </div>
             {% endfor %}
-       </div> <!--tab content end-->
-   </div>
+        </div> <!--tab content end-->
+    </div>
 </div>
 <!--</form>-->
 {% endblock content %}

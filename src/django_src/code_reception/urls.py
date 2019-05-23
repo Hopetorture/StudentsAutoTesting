@@ -18,6 +18,7 @@ urlpatterns = [
     path('get_course/<str:next>/', views.all_choose_course, name='all_courses_view_parametrized'),
     path('results/<int:pk>', views.results_view, name='result_table'),
     path('results/generate_table', views.generate_table, name='generate_table'),
+    path('generate_table/', views.generate_table, name='generate_table_crutch'), ###
     path('student_results/<int:course>/', views.student_results, name='student_results'),
     path('results/remove_student_from_group/<int:student_id>/<str:group_name>', views.remove_student_from_group, name='rm_student')
     # result_table_view

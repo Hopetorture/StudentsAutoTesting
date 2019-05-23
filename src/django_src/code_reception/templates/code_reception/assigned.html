@@ -3,15 +3,15 @@
 <!--<form method="POST" enctype="multipart/form-data">-->
 {% csrf_token %}
 <div class="list-group">
-  {% for course in courses %}
-      <button onclick="window.location='{{next_link}}{{course.id}}'" type="button"
-              class="list-group-item list-group-item-action">
+    {% for course in courses %}
+    <button onclick="window.location='{{next_link}}{{course.id}}'" type="button"
+            class="list-group-item list-group-item-action">
         {{course.name}}
-      </button>
-  {% endfor %}
-  <!--<button type="button" class="list-group-item list-group-item-action active">-->
+    </button>
+    {% endfor %}
+    <!--<button type="button" class="list-group-item list-group-item-action active">-->
     <!--Cras justo odio-->
-  <!--</button>-->
-  <!--<button onclick="window.location='/code/'" type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>-->
+    <!--</button>-->
+    <!--<button onclick="window.location='/code/'" type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>-->
 </div>
 {% endblock content %}
