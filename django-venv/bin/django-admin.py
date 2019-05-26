@@ -1,4 +1,4 @@
-#!/media/gss/Data/Projects/SILVER_BULLET/StudentsAutoTesting/django-venv/bin/python3
+#!/media/gss/Data/Projects/SILVER_BULLET/StudentsAutoTesting/django-venv/bin/python
 from django.core import management
 
 if __name__ == "__main__":

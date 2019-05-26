@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import CourseCreateForm, TaskCreateForm, CreateTaskModelForm
+from .forms import CourseCreateForm, TaskCreateForm, CreateTaskModelForm, CourseManagment, Try2Form
 from code_reception.models import Course, Task, TestCase
 
 # Create your views here.
@@ -100,9 +100,6 @@ def course_controls(request, course=None):
     # 5) возможность изменить задачу?
     print('URL HIT!')
     course_obj = Course.objects.all().get(id=course)
-    return render(request, 'teacher_controls/course_controls.html', {'course_name': course_obj.name + str('''# 1) Разбиение задач на брекеты
-    # 2) Cписок задач
-    # 3) Добавление задач
-    # 3.1) Добавить/убрать группу
-    # 4) Кнопка "выдать группе задачи"
-    # 5) возможность изменить задачу?''')})
+    #form = CourseManagment()
+    form = Try2Form()
+    return render(request, 'teacher_controls/course_controls.html', {'course_name': course_obj.name, 'form': form})

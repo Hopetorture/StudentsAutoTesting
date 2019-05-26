@@ -1,4 +1,4 @@
-#!/media/gss/Data/Projects/SILVER_BULLET/StudentsAutoTesting/django-venv/bin/python3
+#!/media/gss/Data/Projects/SILVER_BULLET/StudentsAutoTesting/django-venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
