@@ -6,9 +6,96 @@
 <!--<form method="POST" enctype="multipart/form-data">-->
 <h4>{{course_name}}</h4>
 <!--<script type="text/javascript" src="/static/admin/js/jquery.min.js"></script>-->
-<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<!--<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>-->
 {{ form.media }}
-<form>
+<form method="POST" class="post-form"> {% csrf_token %}
 {{form | crispy}}
+<!--    <button type="submit" class="save btn btn-default">Save</button>-->
 </form>
+
+<button class="save btn btn-default" onclick="send()">Сохранить</button>
+
+
+<script>
+    var aWhile = 800;
+    var chosen_tasks = [];
+    var mfn = function(){
+                  var elem = document.getElementById("id_tasks_pool_to").children;
+                  for (var i = 0; i < elem.length; i++){
+                      console.log(elem[i].title);
+                      chosen_tasks.push(elem[i].title)
+                  }
+
+                  for (var i = 1; i < 30; i++){
+                    id_ = `id_bracket_${i.toString()}_from`;
+                    var widg = document.getElementById(id_).children;
+                    var to_remove = [];
+                    for(var j = 0; j < widg.length; j++){
+                        if (!chosen_tasks.includes(widg[j].title) && widg[j].value != ""){
+                            to_remove.push(widg[j])
+                        }
+                    }
+                    for (var k = 0; k < to_remove.length; k++){
+                        to_remove[k].remove();
+                    }
+                  }
+        };
+
+    setTimeout(mfn, aWhile);
+</script>
+
+<script>
+    function send() {
+
+        function parse_shitty_widget(tag_id) {
+            var options = $(`${tag_id} option`);
+            var values = $.map(options ,function(option) {return option.value;});
+            return values
+            //var options_selected_grps = $(tag_id);
+            //var values_selected_grps = $.map(options ,function(option) { return option.value; });
+
+
+            //return values_selected_grps
+        }
+
+        var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
+
+        var name = $('#id_name')[0].value
+        var brackets = $('#id_questions_per_student')[0].value
+        var selected_grps = parse_shitty_widget('#id_assigned_groups_to')
+        //var options_selected_grps = $('#id_assigned_groups_to option');
+        //var values_selected_grps = $.map(options ,function(option) { return option.value; });
+
+        var task_pool = parse_shitty_widget('#id_tasks_pool_to')
+        // var new_task_pool = $('#id_tasks_pool_to option');
+        // var task_pool_vals = $.map(options ,function(option) { return option.value; });
+
+        var brackets_vals = {};
+        try {
+            for (var i = 1; i < 30; i++) {
+                var _id = `#id_bracket_${i}_to`;
+                brackets_vals[i] = parse_shitty_widget(_id);
+            }
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        var input_dict = {
+            csrfmiddlewaretoken: CSRFtoken,
+            'Name': name,
+            'Brackets': brackets,
+            'Task_pool': JSON.stringify(task_pool),
+            'Brackets_vals': JSON.stringify(brackets_vals),
+            'Groups': JSON.stringify(selected_grps)
+        };
+        console.log(input_dict)
+        //$.post("", input_dict);
+        testing_request = $.post("", input_dict);
+        testing_request.fail(function () { alert('Произошла ошибка'); location.reload();});
+
+        testing_request.done(function () { alert('Курс изменен успешно'); location.reload();});
+    }
+</script>
+
 {% endblock content %}

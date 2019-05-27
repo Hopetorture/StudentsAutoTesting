@@ -6,8 +6,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import CourseCreateForm, TaskCreateForm, CreateTaskModelForm, CourseManagment, Try2Form
+from .forms import CourseCreateForm, TaskCreateForm, CreateTaskModelForm, CourseManagmentForm, CourseManagment
 from code_reception.models import Course, Task, TestCase
+from users.models import StudentGroup
 
 # Create your views here.
 
@@ -93,13 +94,51 @@ def create_task(request):
 
 @login_required
 def course_controls(request, course=None):
-    # 1) Разбиение задач на брекеты
-    # 2) Cписок задач
-    # 3) Добавление задач
-    # 4) Кнопка "выдать студентам задачи"
-    # 5) возможность изменить задачу?
-    print('URL HIT!')
     course_obj = Course.objects.all().get(id=course)
-    #form = CourseManagment()
-    form = Try2Form()
-    return render(request, 'teacher_controls/course_controls.html', {'course_name': course_obj.name, 'form': form})
+    if request.method == 'POST':
+        try:
+            course_obj.name = request.POST['Name']
+            course_obj.questions_per_student = int(request.POST['Brackets'])
+            course_obj.tasks_pool.set(Task.objects.all().filter(pk__in=map(int, json.loads(request.POST['Task_pool']))))
+            course_obj.assigned_groups.set(StudentGroup.objects.all().filter(pk__in=map(int, json.loads(request.POST['Groups']))))
+
+            brackets = json.loads(request.POST['Brackets_vals'])
+            for idx, vals in brackets.items():
+                if not vals:
+                    break
+                # br = getattr(course_obj, 'bracket_{}'.format(idx))
+                br = Task.objects.all().filter(id__in=map(int, vals))
+                # setattr(course_obj, 'bracket_{}'.format(idx), br)
+                field = 'bracket_{}'.format(idx)
+                eval('course_obj.{}.set(br)'.format(field))
+
+            course_obj.save()
+        except:
+            messages.error(request, 'Произошла ошибка', extra_tags='danger')
+            return HttpResponse(status=500)
+            pass # Report error
+
+        form = CourseManagment(instance=course_obj, course_id=course)
+        print('message added')
+        messages.success(request, 'Курс успешно изменен')
+        return render(request, 'teacher_controls/course_controls.html',
+                      {'course_name': course_obj.name, 'form': form})
+        # form = CourseManagment(request.POST, course_id=course)
+        # if form.is_valid():
+        #     course = form.save(commit=False)
+        #     course.save()
+        #     messages.success(request, 'Курс успешно изменен')
+
+        # else:
+        #     messages.error(request, 'Форма неправильно заполнена', extra_tags='danger')
+        #     #print(form.errors)
+
+        # return render(request, 'teacher_controls/course_controls.html',
+        #               {'course_name': course_obj.name, 'form': form})
+
+
+    else:
+        print('URL HIT!')
+        #form = CourseManagmentForm()
+        form = CourseManagment(instance=course_obj, course_id=course)
+        return render(request, 'teacher_controls/course_controls.html', {'course_name': course_obj.name, 'form': form})
