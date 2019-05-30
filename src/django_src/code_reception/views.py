@@ -78,7 +78,13 @@ def all_choose_course(request, next='/results/'):
 def code_view(request, course=None, student_id=None):
     print('student id:', student_id)
     if not course:
-        course = Course.objects.filter(users=request.user).first().id
+        try:
+            course = Course.objects.filter(users=request.user).first().id
+        except Exception as e:
+            if request.user.groups.filter(name='Teacher').exists():
+                redirect('/get_course/')
+            # todo - fix issue here when use is fresh and got no courses
+            raise e
 
     if student_id:
         user = User.objects.all().get(id=student_id)
