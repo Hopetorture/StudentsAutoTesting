@@ -43,6 +43,7 @@ class TaskResult(models.Model):
     status_color = models.CharField(max_length=30, default='red')
     tests_success = models.TextField(max_length=100, default=json.dumps([]))
     submitted_code = models.TextField(max_length=1000, default=CPP_TEMPLATE)
+    compile_result = models.TextField(max_length=1000, default="")
 
 
 class TestCase(models.Model):

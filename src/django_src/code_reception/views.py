@@ -198,6 +198,7 @@ def update_task_status(task, results, code, user):
     result.tests_success = json.dumps([str(case_passed['bool_stat']) for case_passed in results['testcase_status']])
     result.solve_status = results['status']
     result.status_color = results['color']
+    result.compile_result = results['compile_result']
     result.save()
 
 
