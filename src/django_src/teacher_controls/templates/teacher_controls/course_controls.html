@@ -13,7 +13,9 @@
 <!--    <button type="submit" class="save btn btn-default">Save</button>-->
 </form>
 
-<button class="save btn btn-default" onclick="send()">Сохранить</button>
+<button class="save btn btn-default" onclick="send('save')">Сохранить</button>
+<p></p>
+<button class="save btn btn-default" onclick="send('assign')">Выдать задачи</button>
 
 
 <script>
@@ -45,7 +47,8 @@
 </script>
 
 <script>
-    function send() {
+    function send(e_) {
+        console.log(e_);
 
         function parse_shitty_widget(tag_id) {
             var options = $(`${tag_id} option`);
@@ -81,20 +84,29 @@
             console.log(e);
         }
 
+        arr = location.href.split('/')
+        var course_id = arr[arr.length - 2]
         var input_dict = {
             csrfmiddlewaretoken: CSRFtoken,
             'Name': name,
             'Brackets': brackets,
             'Task_pool': JSON.stringify(task_pool),
             'Brackets_vals': JSON.stringify(brackets_vals),
-            'Groups': JSON.stringify(selected_grps)
+            'Groups': JSON.stringify(selected_grps),
+            'Course_id': course_id
         };
-        console.log(input_dict)
+        //console.log(input_dict)
         //$.post("", input_dict);
-        testing_request = $.post("", input_dict);
-        testing_request.fail(function () { alert('Произошла ошибка'); location.reload();});
-
-        testing_request.done(function () { alert('Курс изменен успешно'); location.reload();});
+        if (e_ === 'save'){
+            testing_request = $.post("", input_dict);
+            testing_request.fail(function () { alert('Произошла ошибка'); location.reload();});
+            testing_request.done(function () { alert('Курс изменен успешно'); location.reload();});
+        }
+        if (e_ === 'assign'){
+            testing_request = $.post("/assign_tasks/", input_dict);
+            testing_request.fail(function () { alert('Произошла ошибка выдачи задач'); location.reload();});
+            testing_request.done(function () { alert('Задачи выданы успешно'); location.reload();});
+        }
     }
 </script>
 

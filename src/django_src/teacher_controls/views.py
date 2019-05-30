@@ -1,4 +1,5 @@
 import json
+import random
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -61,6 +62,42 @@ def add_testcases_to_task(testcases, task):
             task.testcase_set.add(new_test)
 
 
+
+@login_required
+def assign_tasks(request):
+    print('assign url hit')
+    if request.method == 'POST':
+        args = request.POST
+        course_name = args['Name']
+        brackets = int(args['Brackets'])
+        assign_to = list(map(int, json.loads(args['Groups'])))
+        tasks_by_bracket = {k: list(map(int,v)) for k, v in json.loads(args['Brackets_vals']).items()}
+        course_id = int(args['Course_id'])
+
+        course = Course.objects.all().get(id=course_id)
+        groups = StudentGroup.objects.all().filter(pk__in=assign_to)
+
+        for group in groups:
+            students = group.students.all()
+            course.users.add(*students)
+            for stud in students:
+                already_assigned = stud.task_set.all().filter(course=course)
+                if len(already_assigned) != brackets:
+                    stud.task_set.remove(*already_assigned)
+                    for bracket_id, tasks in tasks_by_bracket.items():
+                        if not tasks:
+                            break
+                        task = Task.objects.all().get(pk=random.choice(tasks))
+                        stud.task_set.add(task)
+                # for bracket in brackets:
+                #     task = bracket.get_random.task()
+                #     stud.task_set.add(task)
+
+
+        return HttpResponse(status=200)
+
+    else:
+        return HttpResponse(status=500)
 
 @login_required
 def create_task(request):
