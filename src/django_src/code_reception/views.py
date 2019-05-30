@@ -35,6 +35,8 @@ def code_testing_get_context(request, course, student):
     #for e in list(request.user.task_set.all()):
     for e in list(tasks):
         try:
+            # TODO - potenial bug here, what happens when student have 2 courses? how much task results obj exist?
+            #  Do we get correct ones? Вроде всё ок т.к. вызываем его из под каждого task-a
             task_result = e.taskresult_set.get(user=user)
         except ObjectDoesNotExist:
             task_result = TaskResult(test=e, user=user)
@@ -42,7 +44,7 @@ def code_testing_get_context(request, course, student):
 
         logging.info(json.loads(task_result.tests_success))
         task_result.tests_success = json.loads(task_result.tests_success)  # hack, fix later
-        ctx.append({'test': e, 'result': task_result})
+        ctx.append({'test': e, 'result': task_result, 'task_id': e.id})
     context['tasks'] = ctx
     context['course'] = course
     return context
@@ -121,13 +123,15 @@ def test_code(request):
             if user != request.user:
                 logging.critical('Unauthorized test run')
                 messages.error(request, f'Недостаточно прав для запуска', extra_tags='danger')
+                print('responding with 403')
                 return HttpResponse(status=403)
         else:
             user = request.user
 
         logging.info(post)  # code, lang, task_num
-        question_id = post['task']
-        task = list(user.task_set.all())[int(question_id) - 1]  # django task object
+        task_id = post['task_id']
+        # task = list(user.task_set.all())[int(task_id) - 1]  # django task object
+        task = user.task_set.all().get(id=task_id)
         logging.critical('Task name being tested:', task.title)
         # if request.user not in task.user_set.all():
         #     logging.critical('Unauthorized test run')
@@ -148,8 +152,9 @@ def test_code(request):
         result = judge(task_json=code_json, question=question_json)
         response_data['result'] = result
         update_task_status(task, result, post['code'], request.user)
-
+        print('responding with correct shit')
         return HttpResponse(json.dumps(response_data), content_type="application/json")
+    print('responding with 404')
     return HttpResponse(status=404)
 
 

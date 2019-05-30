@@ -84,8 +84,10 @@ def judge(task_json, question):
     runtime_results = pool.map(run_fn, question['testcases'])
     test_results = {}
     for i in range(len(runtime_results)):
-        correct_answer = question['testcases'][i]['Output_value']
+        correct_answer = question['testcases'][i]['Output_value'].replace('\\n', '\n')
         runtime_answer = runtime_results[i]
+        print('RUNTIME ANSWER:')
+        print(runtime_answer)
         if 'Execution timeout' in runtime_answer:
             compile_result = f'Timeout in test {i}'
         if correct_answer != runtime_answer:
