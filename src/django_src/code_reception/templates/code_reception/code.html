@@ -45,12 +45,6 @@
                         {{task.test.text}}
                     </div>
                 </div>
-                <!--<div class="panel panel-default">-->
-                <!--<div class="panel-body">-->
-                <!--Ограничение по времени выполнения: {{task.Timeout}} сек.-->
-                <!--</div>-->
-                <!--</div>-->
-                <!--<textarea id="txtarea" spellcheck="false" placeholder="Введите код программы"></textarea>-->
 
                 <!--Dropdown-->
                 <div class="dropdown">
@@ -89,23 +83,14 @@
                 <div class="form-group">
                     <label for="txtarea">Код программы </label>
                     <textarea name='code' class="form-control" id="txtarea" rows="13">{{task.result.submitted_code}}</textarea>
-                    <!--<script>-->
-                    <!--&lt;!&ndash;function expandTextarea(id) {&ndash;&gt;-->
-                    <!--&lt;!&ndash;document.getElementById(id).addEventListener('keyup', function() {&ndash;&gt;-->
-                    <!--&lt;!&ndash;this.style.overflow = 'hidden';&ndash;&gt;-->
-                    <!--&lt;!&ndash;this.style.height = 0;&ndash;&gt;-->
-                    <!--&lt;!&ndash;this.style.height = this.scrollHeight + 'px';}, false);}&ndash;&gt;-->
-                    <!--&lt;!&ndash;expandTextarea('txtarea');&ndash;&gt;-->
-                    <!--</script>-->
                 </div>
                 <script>
                     function sendTask(){
                         var CSRFtoken = $('input[name=csrfmiddlewaretoken]').val();
-                        var code_src = $('#txtarea').val();
+                        var code_src = $('.tab-pane.active').find('textarea').val();
                         var toolset = $('#dropdownMenu1').text().trim();
 
                         var task_num = $('.active')[1].getAttribute('data-id')
-                        // task_num = task_num[task_num.length - 1];
 
 
                         input_dict = {
@@ -116,7 +101,6 @@
                         }
 
                         var cb = function(data){
-                            //alert('cb call');
                             console.log(data['result']);
                             var res = data['result'];
                             $('#status_color').text(get_correct_testcase_text(res['status']));
@@ -155,56 +139,26 @@
                                 var txt = "Тест #" + next_idx + " " + get_correct_testcase_text(status);
                                 console.log(txt);
 
-                                $('#testcase' + next_idx)[0].style.visibility = "visible";
                                 $('#testcase' + next_idx).text(txt);
                                 $('#testcase' + next_idx).attr('class', class_color)
                                 console.log(status);
                                 if (status == "Not compiled")
                                 {
                                     console.log("if worked");
-                                    //$('#testcase' + next_idx).text("Ошибка комплияции");
-                                    //$('#testcase' + next_idx).attr('class', "list-group-item list-group-item-warning");
-                                    //$('#testcase' + next_idx)[0].style.visibility = "hidden";
                                 }
 
                             }
-
-                            // $('.nav-tabs li:eq(5) a').tab('show')
-                            //console.log(window.location.href);
-                            //alert('Reload from cb');
-                            //alert('debug beign')
-                            console.log('the great console debug begins');
-                        //var link = $('li.active')[0].children[0].href;
-                        //console.log('link: ', link);
+                        console.log('the great console debug begins');
                         var tab_id = parseInt($('.active')[1].id.replace('tab', '')) - 1;
                         console.log('tab_id: ', tab_id)
                         console.log('href before: ', window.location.href)
-                        //window.location.href = window.location.href.replace( /[\?#].*|$/, `?${tab_id}` );
                         var correct_href = window.location.href.replace( /[\?#].*|$/, `?${tab_id}` );
                         console.log('correct href: ', correct_href);
-                        //alert('before reload');
                         window.location.href = correct_href;
                         $('#Compile_error').text(res['compile_result']);
-                        console.log('abc')
-                        //alert('after reload');
-                        //console.log('href after: ', window.location.href)
-                        //alert('pause')
-                        //location.reload();
-                            //location.reload(true);
                         }
                         // callback end
 
-                        // console.log('the great console debug begins');
-                        // //var link = $('li.active')[0].children[0].href;
-                        // //console.log('link: ', link);
-                        // var tab_id = parseInt($('.active')[1].id.replace('tab', '')) - 1;
-                        // console.log('tab_id: ', tab_id)
-                        // console.log('href before: ', window.location.href)
-                        // //window.location.href = window.location.href.replace( /[\?#].*|$/, `?${tab_id}` );
-                        // var correct_href = window.location.href.replace( /[\?#].*|$/, `?${tab_id}` );
-                        // //console.log('href after: ', window.location.href)
-                        // //alert('pause')
-                        // //location.reload();
 
 
                         var current_path = window.location.pathname.split('/');
@@ -215,20 +169,12 @@
                         if (student_id !== undefined){
                             input_dict['student_id'] = student_id
                         }
+                        console.log(input_dict)
                         var testing_request = $.post("/test/", input_dict, cb);
-                        // testing_request.fail(function () {
-                        //     console.log(window.location.href);
-                        //     alert('reload from fail')
-                        //     location.reload(true);
-                        //     window.location.href = window.location.href
-                        // });
 
                     }
                 </script>
-                <button id="submit_btn"  class="btn btn-success" onclick="sendTask()">Протестировать</button><!--type="submit"-->
-                <!--$('#submit_btn').click(function(){-->
-                <!--alert('smthing')-->
-                <!--} );-->
+                <button id="submit_btn"  class="btn btn-success" onclick="sendTask()">Протестировать</button>
 
                 <ul class="list-group" id="results">
                     {% for result in task.result.tests_success %}
@@ -238,15 +184,7 @@
                     <li id="testcase{{forloop.counter}}" class="list-group-item list-group-item-danger">Тест #{{forloop.counter}} Ошибка</li>
                     {% endif %}
                     {% endfor %}
-                    <!--<li class="list-group-item">Dapibus ac facilisis in</li>-->
-                    <!--<li class="list-group-item list-group-item-primary">This is a primary list group item</li>-->
-                    <!--<li class="list-group-item list-group-item-secondary">This is a secondary list group item</li>-->
 
-                    <!---->
-                    <!--<li class="list-group-item list-group-item-warning">This is a warning list group item</li>-->
-                    <!--<li class="list-group-item list-group-item-info">This is a info list group item</li>-->
-                    <!--<li class="list-group-item list-group-item-light">This is a light list group item</li>-->
-                    <!--<li class="list-group-item list-group-itqem-dark">This is a dark list group item</li>-->
                 </ul>
                 <label id="Compile_error">
                     {{task.result.compile_result}}
@@ -263,10 +201,6 @@
     if (correct_tab !== ""){
         $(`.nav-tabs li:eq(${correct_tab}) a`).tab('show')
     }
-
-
-
 </script>
-<!--</form>-->
 {% endblock content %}
 

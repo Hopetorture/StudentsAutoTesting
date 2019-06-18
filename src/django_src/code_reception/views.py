@@ -15,7 +15,7 @@ from .default_values import SUPPORTED_TOOLSETS
 from .models import Task, Course, TaskResult
 
 sys.path.append('..')
-from test_engine.judge import judge
+from test_engine.judge_starter import run_docker
 
 
 logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
@@ -149,10 +149,11 @@ def test_code(request):
 
         question_json = task.to_question_json()
         logging.info(task.to_question_json())
-        result = judge(task_json=code_json, question=question_json)
+        result = run_docker(question=question_json, task=code_json)
+        #result = judge(task_json=code_json, question=question_json)
         response_data['result'] = result
         update_task_status(task, result, post['code'], request.user)
-        print('responding with correct shit')
+        print('responding with: ', response_data)
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     print('responding with 404')
     return HttpResponse(status=404)

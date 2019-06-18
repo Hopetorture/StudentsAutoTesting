@@ -47,8 +47,27 @@ d2 = {"QuestionID": "42",
       }
 
 
-def run_docker():
-    subprocess.run(["docker", "run", "test-engine", "-q", json.dumps(d2), '-t', json.dumps(d1)])
+def run_docker(question, task):  # question = d2, t = d1
+    print('docker start')
+    try:
+        res = subprocess.check_output(["docker", "run", "test-engine", "-q", json.dumps(question), '-t', json.dumps(task)],
+                       timeout=3)
+    except TimeoutError as e:
+        return {
+            'compile_result': e,
+            'testcase_status': [],
+            'status': 'Fail',
+            'color': 'Brass'
+        }
+    except subprocess.CalledProcessError as e:
+        return {
+            'compile_result': e,
+            'testcase_status': [],
+            'status': 'Fail',
+            'color': 'red'
+        }
+
+    return json.loads(res.decode('utf-8').strip())
 
 
 def start_for_debug():

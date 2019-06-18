@@ -46,13 +46,6 @@ TOOLCHAINS = {
 }
 
 
-# scrap this idea for now due to problems - each executable must have its own input.txt.
-# it can be solved by copying binary to a special directory tree to make a match between run and a testcase input txt
-# def write_inputtxt(testcases):
-#     for k,v in testcases.items():
-#         with open('input.txt', 'w') as f:
-#             f.write(file_data)
-
 def fail_to_bool(s):
     if 'Success' in s:
         return True
@@ -70,14 +63,16 @@ def judge(task_json, question):
     question = parse_jsons(question)
     task = parse_jsons(task_json)
     if not question['testcases']:
-        return ResultTemplate.standart_res('')
+        print(json.dumps(ResultTemplate.standart_res('')))
+        return
     compile_fn, run_fn = TOOLCHAINS[task['Toolkit']]
     compile_result = compile_fn(code=task['Code'])
     if compile_result:
         if 'error' in compile_result:
-            print('Could not compile!')
-            print(compile_result)
-            return ResultTemplate.compile_error(compile_result)
+            #print('Could not compile!')
+            #print(compile_result)
+            print(json.dumps(ResultTemplate.compile_error(compile_result)))
+            return
 
     pool = Pool(max(len(question['testcases']) % PROC_COUNT, 1))
     #pool = Pool(1)
@@ -86,8 +81,8 @@ def judge(task_json, question):
     for i in range(len(runtime_results)):
         correct_answer = question['testcases'][i]['Output_value'].replace('\\n', '\n')
         runtime_answer = runtime_results[i]
-        print('RUNTIME ANSWER:')
-        print(runtime_answer)
+        #print('RUNTIME ANSWER:')
+        #print(runtime_answer)
         if 'Execution timeout' in runtime_answer:
             compile_result = f'Timeout in test {i}'
         if correct_answer != runtime_answer:
@@ -102,7 +97,7 @@ def judge(task_json, question):
 
     tests_status = 'Success'
     result_json = ResultTemplate.standart_res(compile_result)
-    print(compile_result + '\n')
+    # print(compile_result + '\n')
     for k, v in test_results.items():
         result_json['testcase_status'].append({
                 'idx': k,
@@ -111,11 +106,11 @@ def judge(task_json, question):
             })
         if v.status == 'Fail':
             tests_status = 'Fail'
-        print('Testcase #{id}: {res}, {msg}'.format(
-            id=k, res=v.status, msg=v.message))
+        #print('Testcase #{id}: {res}, {msg}'.format(
+        #    id=k, res=v.status, msg=v.message))
     result_json['status'] = tests_status
     result_json['color'] = get_color_for_status(tests_status)
-    return result_json
+    print(json.dumps(result_json))
 
 
 class ResultTemplate:
