@@ -130,11 +130,14 @@
             course: {{course_id}}
     }
         var cb = function(data){
+            $("tr").remove(".m_row");
             console.log(data);
             var table = data['table'];
             var rows = data['rows'];
             //document.getElementById("_table_").css("visibility", "visible");
             //document.getElementById("columns").innerHTML += `<th scope="col">Прогресс</th>`;
+            html_columns = `<th scope="col">#</th> <th scope="col">Студент</th><th scope="col">Прогресс</th>`
+            document.getElementById("columns").innerHTML = html_columns;
             for (var i = 1; i <= rows; i++){
                 document.getElementById("columns").innerHTML += `<th scope="col">Задача ${i}</th>`;
             }
@@ -165,7 +168,7 @@
                 }
                 var success_percents = Math.round((total_tasks - (fail_tasks + no_run_tasks)) / total_tasks * 100)
                 console.log(res_status);
-                document.getElementById("mtable").innerHTML += `<tr>
+                document.getElementById("mtable").innerHTML += `<tr class="m_row">
                                                             <th scope='row'>${student['idx']}</th>
                                                             <td><a id=${student['db_user_id']} title=${student['email']} href="/code/${student['course_id']}/${student['db_user_id']}">${student['name']}</a></td>
                                                             <td>
